@@ -19,12 +19,38 @@ class GoodsCategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        $goods_categories = GoodsCategories::create($validated);
-        return response()->json($goods_categories, 201);
+        try {
+            // Validate the incoming request
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+            ]);
+    
+            // Create a new goods category
+            $goods_category = GoodsCategories::create($validated);
+    
+            // Return success response
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Goods category created successfully.',
+                'data' => $goods_category
+            ], 201);
+    
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return validation failure response
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Validation error.',
+                'errors' => $e->errors()
+            ], 422);
+            
+        } catch (\Exception $e) {
+            // Return general error response
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while creating the goods category.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -40,12 +66,50 @@ class GoodsCategoryController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-        ]);
-
-        $goods_categories->update($validated);
-        return response()->json($goods_categories);
+        try {
+            // Find the goods category by ID
+            $goods_category = GoodsCategories::find($id);
+    
+            // If the goods category is not found, return a failure response
+            if (!$goods_category) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'Goods category not found.',
+                ], 404);
+            }
+    
+            // Validate the incoming request
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'status' => 'required|string|max:255',
+            ]);
+    
+            // Update the goods category
+            $goods_category->update($validated);
+    
+            // Return success response
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Goods category updated successfully.',
+                'data' => $goods_category
+            ], 200);
+    
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return validation failure response
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Validation error.',
+                'errors' => $e->errors()
+            ], 422);
+    
+        } catch (\Exception $e) {
+            // Return general error response
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while updating the goods category.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -53,7 +117,34 @@ class GoodsCategoryController extends Controller
      */
     public function destroy(GoodsCategories $goods_category)
     {
-        $goods_category->delete();
-        return response()->json(null, 204);
+        try {
+            // Find the goods category by ID
+            $goods_category = GoodsCategories::find($id);
+    
+            // If the goods category is not found, return a failure response
+            if (!$goods_category) {
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'Goods category not found.',
+                ], 404);
+            }
+    
+            // Delete the goods category
+            $goods_category->delete();
+    
+            // Return success response
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Goods category deleted successfully.',
+            ], 200);
+    
+        } catch (\Exception $e) {
+            // Return error response for any unforeseen issues
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while deleting the goods category.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
