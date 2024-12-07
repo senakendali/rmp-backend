@@ -23,6 +23,7 @@ class GoodsCategoryController extends Controller
             // Validate the incoming request
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
+                'goods_type' => 'required|in:material,non-material',
             ]);
     
             // Create a new goods category
@@ -67,6 +68,13 @@ class GoodsCategoryController extends Controller
     public function update(Request $request, string $id)
     {
         try {
+
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'goods_type' => 'required|in:material,non-material',
+                'status' => 'required|in:active,inactive',
+            ]);
+
             // Find the goods category by ID
             $goods_category = GoodsCategories::find($id);
     
