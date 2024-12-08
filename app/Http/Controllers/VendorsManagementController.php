@@ -164,7 +164,7 @@ class VendorsManagementController extends Controller
                     } else {
                         // Add a new document
                         $filePath = $document['file']->store('vendor_documents', 'public');
-                        VendorDocument::create([
+                        VendorsDocument::create([
                             'vendors_id' => $vendor->id,
                             'file_name' => $filePath,
                             'description' => $document['description'] ?? null,
@@ -225,7 +225,7 @@ class VendorsManagementController extends Controller
      */
     public function deleteDocument($id)
     {
-        $document = VendorDocument::findOrFail($id);
+        $document = VendorsDocument::findOrFail($id);
         $document->delete();
 
         return response()->json(['message' => 'Document deleted successfully.'], 204);
