@@ -17,5 +17,6 @@ Route::apiResource('goods', GoodsManagementController::class);
 Route::apiResource('purchase-requests', PurchaseRequestController::class);
 Route::prefix('purchase-requests')->group(function () {
     Route::put('/followUp/{id}', [PurchaseRequestController::class, 'followUp']);
+    Route::put('/updateStatus/{id}', [PurchaseRequestController::class, 'updateStatus']);
 });
 

@@ -189,6 +189,60 @@ class PurchaseRequestController extends Controller
         }
     }
 
+    public function updateStatus(Request $request, $id)
+    {
+        DB::beginTransaction();
+        try {
+            $purchaseRequest = PurchaseRequest::findOrFail($id);
+
+            $validated = $request->validate([
+                'status' => 'required|in:approved,revised,rejected',
+                'update_status_reason' => 'nullable|string|max:1000', // Optional by default
+                'update_status_by' => 'nullable|string|max:255', 
+            ]);
+
+            // Ensure reason is provided for revised or rejected statuses
+            if (in_array($validated['status'], ['revised', 'rejected']) && empty($validated['update_status_reason'])) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Reason is required when the status is "revised" or "rejected".',
+                ], 422);
+            }
+
+            $updateData = [
+                'status' => $validated['status'],
+                'update_status_by' => "System",
+            ];
+
+            if (!empty($validated['update_status_reason'])) {
+                $updateData['update_status_reason'] = $validated['update_status_reason'];
+            }
+
+            // Set approval date if the status is approved
+            if ($validated['status'] === 'approved') {
+                $updateData['approval_date'] = now();
+            }
+
+            $purchaseRequest->update($updateData);
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Purchase request status updated successfully.',
+                'data' => $purchaseRequest,
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while updating the purchase request status.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
 
 
     /**
