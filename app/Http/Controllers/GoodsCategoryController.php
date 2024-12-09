@@ -123,12 +123,12 @@ class GoodsCategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(GoodsCategories $goods_category)
+    public function destroy($id)
     {
         try {
             // Find the goods category by ID
             $goods_category = GoodsCategories::find($id);
-    
+
             // If the goods category is not found, return a failure response
             if (!$goods_category) {
                 return response()->json([
@@ -136,16 +136,16 @@ class GoodsCategoryController extends Controller
                     'message' => 'Goods category not found.',
                 ], 404);
             }
-    
+
             // Delete the goods category
             $goods_category->delete();
-    
+
             // Return success response
             return response()->json([
                 'status' => 'success',
                 'message' => 'Goods category deleted successfully.',
             ], 200);
-    
+
         } catch (\Exception $e) {
             // Return error response for any unforeseen issues
             return response()->json([
@@ -155,4 +155,5 @@ class GoodsCategoryController extends Controller
             ], 500);
         }
     }
+
 }
