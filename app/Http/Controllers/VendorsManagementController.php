@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\DB;
 
 class VendorsManagementController extends Controller
 {
+    public function __construct()
+    {
+        ini_set('upload_max_filesize', '10M');
+        ini_set('post_max_size', '10M');
+    }
+    
     /**
      * Display a listing of the vendors.
      */
@@ -37,7 +43,7 @@ class VendorsManagementController extends Controller
 
             // Validation for documents
             'documents' => 'nullable|array',
-            'documents.*.file' => 'required_with:documents|file|mimes:pdf,jpg,png|max:2048',
+            'documents.*.file' => 'required_with:documents|file|mimes:pdf,jpg,png|max:10240',
             'documents.*.description' => 'nullable|string|max:255',
         ]);
 
@@ -116,7 +122,7 @@ class VendorsManagementController extends Controller
             // Validation for documents
             'documents' => 'nullable|array',
             'documents.*.id' => 'nullable|exists:vendors_documents,id',
-            'documents.*.file' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'documents.*.file' => 'nullable|file|mimes:pdf,jpg,png|max:10240',
             'documents.*.description' => 'nullable|string|max:255',
         ]);
 
