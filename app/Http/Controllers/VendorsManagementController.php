@@ -38,8 +38,8 @@ class VendorsManagementController extends Controller
             'pic_phone' => 'required|string|max:20',
             'pic_email' => 'required|email|max:255',
             'address' => 'required|string|max:255',
-            'status' => 'required|in:active,inactive',
-            'verification_status' => 'required|in:verified,unverified',
+            'status' => 'nullable|in:active,inactive',
+            'verification_status' => 'nullable|in:verified,unverified',
 
             // Validation for documents
             'documents' => 'nullable|array',
@@ -58,8 +58,8 @@ class VendorsManagementController extends Controller
                 'pic_phone' => $validated['pic_phone'],
                 'pic_email' => $validated['pic_email'],
                 'address' => $validated['address'],
-                'status' => $validated['status'],
-                'verification_status' => $validated['verification_status'],
+                'status' => 'active',
+                'verification_status' => 'unverified',
             ]);
 
             // Handle document uploads
@@ -116,8 +116,8 @@ class VendorsManagementController extends Controller
             'pic_phone' => 'required|string|max:20',
             'pic_email' => 'required|email|max:255',
             'address' => 'required|string|max:255',
-            'status' => 'required|in:active,inactive',
-            'verification_status' => 'required|in:verified,unverified',
+            'status' => 'nullable|in:active,inactive',
+            'verification_status' => 'nullable|in:verified,unverified',
 
             // Validation for documents
             'documents' => 'nullable|array',
@@ -137,8 +137,8 @@ class VendorsManagementController extends Controller
                 'pic_phone' => $validated['pic_phone'],
                 'pic_email' => $validated['pic_email'],
                 'address' => $validated['address'],
-                'status' => $validated['status'],
-                'verification_status' => $validated['verification_status'],
+                'status' => 'active',
+                'verification_status' => 'unverified',
             ]);
 
             // Handle document updates
