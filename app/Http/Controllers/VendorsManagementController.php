@@ -50,6 +50,9 @@ class VendorsManagementController extends Controller
         DB::beginTransaction();
 
         try {
+            // Determine vendor_type based on goods_category
+            $vendorType = empty($validated['goods_category']) ? 'material' : 'non-material';
+
             // Create the vendor
             $vendor = Vendors::create([
                 'name' => $validated['name'],
@@ -60,6 +63,7 @@ class VendorsManagementController extends Controller
                 'address' => $validated['address'],
                 'status' => 'active',
                 'verification_status' => 'unverified',
+                'vendor_type' => $vendorType, // Add vendor_type to the database insert
             ]);
 
             // Handle document uploads
@@ -93,6 +97,7 @@ class VendorsManagementController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Display the specified vendor.
@@ -129,6 +134,9 @@ class VendorsManagementController extends Controller
         DB::beginTransaction();
 
         try {
+            // Determine vendor_type based on goods_category
+            $vendorType = empty($validated['goods_category']) ? 'material' : 'non-material';
+
             // Update vendor details
             $vendor->update([
                 'name' => $validated['name'],
@@ -137,8 +145,9 @@ class VendorsManagementController extends Controller
                 'pic_phone' => $validated['pic_phone'],
                 'pic_email' => $validated['pic_email'],
                 'address' => $validated['address'],
-                'status' => 'active',
-                'verification_status' => 'unverified',
+                'status' => $validated['status'] ?? $vendor->status,
+                'verification_status' => $validated['verification_status'] ?? $vendor->verification_status,
+                'vendor_type' => $vendorType, // Update vendor_type
             ]);
 
             // Handle document updates
@@ -195,6 +204,7 @@ class VendorsManagementController extends Controller
             ], 500);
         }
     }
+
 
     /**
      * Remove the specified vendor from storage.
