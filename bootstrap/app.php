@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 'throttle:api',
                 \Illuminate\Routing\Middleware\SubstituteBindings::class,
             ],
+            'role' => \App\Http\Middleware\RoleMiddleware::class,
         ];
     })
     ->withExceptions(function (Exceptions $exceptions) {
