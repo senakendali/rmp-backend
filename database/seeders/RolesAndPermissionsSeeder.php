@@ -28,16 +28,27 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Define permissions by page
         $pagePermissions = [
-            'purchase_request' => [
+            'purchase-request' => [
                 'add purchase request',        // Permission to add purchase requests
                 'follow up purchase request', // Permission to follow up on purchase requests
                 'update status purchase request', // Permission to update status of purchase requests
-            ],
-            'procurement' => [
-                'view offers',             // Permission to view offers
-                'view vendor history',     // Permission to view vendor history
+                'view purchase history',      // Permission to view purchase history
                 'create new po',           // Permission to create new PO
                 'add to existing po',      // Permission to add to existing PO
+            ],
+            'purchase-order' => [
+                'follow up purchase order', // Permission to follow up on purchase orders
+                'delete purchase order',   // Permission to delete purchase orders
+                'view detail purchase order', // Permission to view details of purchase orders
+                'edit purchase order',     // Permission to edit purchase orders
+                'view offers',             // Permission to view offers
+                'view vendor history',     // Permission to view vendor history
+            ],
+            'vendor-management' => [
+                'add vendor',               // Permission to add vendors
+                'edit vendor',              // Permission to edit vendors
+                'vendor verification',      // Permission to verify vendor
+                'vendor approval',          // Permission to approve vendor
             ],
         ];
 
@@ -51,22 +62,34 @@ class RolesAndPermissionsSeeder extends Seeder
         // Assign permissions to roles
         $rolePermissions = [
             'department' => [
-                'purchase_request.add purchase request',
+                'purchase-request.add purchase request',
+                'vendor-management.add vendor',
+                'vendor-management.edit vendor',
             ],
             'ppic' => [
-                'purchase_request.add purchase request',
-                'purchase_request.follow up purchase request',
+                'purchase-request.add purchase request',
+                'purchase-request.follow up purchase request',
             ],
             'factory-manager' => [
-                'purchase_request.update status purchase request',
+                'purchase-request.update status purchase request',
             ],
             'procurement' => [
                 'procurement.create new po',
                 'procurement.add to existing po',
+                'vendor-management.add vendor',
+                'vendor-management.edit vendor',
+                'vendor-management.vendor verification', 
+                'purchase-order.follow up purchase order', 
+                'purchase-order.delete purchase order',
+                'purchase-order.view detail purchase order',
+                'purchase-order.edit purchase order',
+                'purchase-order.view offers',
+                'purchase-order.view vendor history',
             ],
             'bod' => [
-                'procurement.view offers',
-                'procurement.view vendor history',
+                'purchase-order.view offers',
+                'purchase-order.view vendor history',
+                'vendor-management.vendor approval',
             ],
         ];
 
