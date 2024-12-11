@@ -7,6 +7,7 @@ use App\Models\VendorsDocument;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class VendorsManagementController extends Controller
 {
@@ -200,6 +201,55 @@ class VendorsManagementController extends Controller
 
             return response()->json([
                 'message' => 'Failed to update vendor and documents.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function updateVerificationStatus(Request $request, $id)
+    {
+        try {
+            // Validate request
+            $request->validate([
+                'verification_status' => 'required|in:verified,unverified,approved',
+            ]);
+
+            // Find vendor
+            $vendor = Vendors::findOrFail($id);
+
+            // Check current verification status
+            $currentStatus = $vendor->verification_status;
+
+            // Define rules
+            if ($request->verification_status === 'approved' && $currentStatus !== 'verified') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Cannot approve a vendor unless it is already verified.',
+                ], 422);
+            }
+
+            // Update fields based on verification_status
+            if ($request->verification_status === 'approved') {
+                $vendor->approved_by = Auth::user()->name; // Assuming you use Auth for logged-in user
+                $vendor->approved_date = now();
+            } elseif ($request->verification_status === 'verified') {
+                $vendor->verified_by = Auth::user()->name;
+                $vendor->verified_date = now();
+            }
+
+            // Update verification_status
+            $vendor->verification_status = $request->verification_status;
+            $vendor->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Verification status updated successfully.',
+                'data' => $vendor,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while updating verification status.',
                 'error' => $e->getMessage(),
             ], 500);
         }

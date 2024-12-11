@@ -15,6 +15,11 @@ Route::get('/user', function (Request $request) {
 
 Route::apiResource('goods-category', GoodsCategoryController::class);
 Route::apiResource('vendors', VendorsManagementController::class);
+Route::prefix('vendors')->group(function () {
+    Route::middleware('auth:sanctum')->put('/updateStatus/{id}', [VendorsManagementController::class, 'updateVerificationStatus']);
+
+});
+
 Route::apiResource('goods', GoodsManagementController::class);
 Route::apiResource('purchase-requests', PurchaseRequestController::class);
 Route::prefix('purchase-requests')->group(function () {
