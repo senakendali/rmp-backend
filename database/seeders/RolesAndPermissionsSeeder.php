@@ -13,7 +13,7 @@ class RolesAndPermissionsSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create roles
+        // Define roles
         $roles = [
             'department', // Role for department users
             'ppic', // Role for production planning and inventory control
@@ -26,51 +26,53 @@ class RolesAndPermissionsSeeder extends Seeder
             Role::firstOrCreate(['name' => $role]);
         }
 
-        // Create permissions
-        $permissions = [
-            'add purchase request', // Permission to add purchase requests
-            'follow up purchase request', // Permission to follow up on purchase requests
-            'update status purchase request', // Permission to update status of purchase requests
-            'view offers', // Permission to view offers
-            'view vendor history', // Permission to view vendor history
-            'create new po', // Permission to create new PO'
-            'add to existing po', // Permission to add to existing PO
+        // Define permissions by page
+        $pagePermissions = [
+            'purchase_request' => [
+                'add purchase request',        // Permission to add purchase requests
+                'follow up purchase request', // Permission to follow up on purchase requests
+                'update status purchase request', // Permission to update status of purchase requests
+            ],
+            'procurement' => [
+                'view offers',             // Permission to view offers
+                'view vendor history',     // Permission to view vendor history
+                'create new po',           // Permission to create new PO
+                'add to existing po',      // Permission to add to existing PO
+            ],
         ];
 
-        foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['name' => $permission]);
+        // Create permissions
+        foreach ($pagePermissions as $page => $permissions) {
+            foreach ($permissions as $permission) {
+                Permission::firstOrCreate(['name' => "{$page}.{$permission}"]);
+            }
         }
 
         // Assign permissions to roles
-        $departmentRole = Role::findByName('department');
-        $ppicRole = Role::findByName('ppic');
-        $factoryManagerRole = Role::findByName('factory-manager');
-        $procurementRole = Role::findByName('procurement');
-        $bodRole = Role::findByName('bod');
+        $rolePermissions = [
+            'department' => [
+                'purchase_request.add purchase request',
+            ],
+            'ppic' => [
+                'purchase_request.add purchase request',
+                'purchase_request.follow up purchase request',
+            ],
+            'factory-manager' => [
+                'purchase_request.update status purchase request',
+            ],
+            'procurement' => [
+                'procurement.create new po',
+                'procurement.add to existing po',
+            ],
+            'bod' => [
+                'procurement.view offers',
+                'procurement.view vendor history',
+            ],
+        ];
 
-        // Assign permissions to roles
-        // Example: You can customize which permissions each role should have
-        $departmentRole->givePermissionTo([
-            'add purchase request',
-        ]);
-
-        $ppicRole->givePermissionTo([
-            'add purchase request',
-            'follow up purchase request',
-        ]);
-
-        $factoryManagerRole->givePermissionTo([
-            'update status purchase request',
-        ]);
-
-        $procurementRole->givePermissionTo([
-            'create new po',
-            'add to existing po',
-        ]);
-
-        $bodRole->givePermissionTo([
-            'view offers',
-            'view vendor history',
-        ]);
+        foreach ($rolePermissions as $roleName => $permissions) {
+            $role = Role::findByName($roleName);
+            $role->givePermissionTo($permissions);
+        }
     }
 }

@@ -24,6 +24,7 @@ Route::prefix('purchase-requests')->group(function () {
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+Route::middleware('auth:sanctum')->get('/permissions/{user}', [AuthController::class, 'fetchPermissions']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -51,6 +52,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/users/{user}/roles', [RolePermissionController::class, 'assignRoleToUser']); // Assign a role to a user
     Route::delete('/users/{user}/roles/{role}', [RolePermissionController::class, 'removeRoleFromUser']); // Remove a role from a user
+
+   
 });
 
 
