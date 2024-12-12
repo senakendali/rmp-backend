@@ -16,10 +16,23 @@ return [
 
     'allowed_methods' => ['*'], // Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
 
-    'allowed_origins' => ['*'], // Allow all origins or specify allowed origins
+    'allowed_origins' => [
+        'https://rmp-manufacture-frontend-6pzh.vercel.app/',
+        'localhost:3000',
+        'localhost:5173',
+        '127.0.0.1:8000',
+    ],
     'allowed_origins_patterns' => [],
 
-    'allowed_headers' => ['*'], // Allow all headers
+    'allowed_headers' => [
+        'Content-Type',
+        'X-Requested-With',
+        'Authorization',
+        'Accept',
+        'Origin',
+        'Referer',
+        // Add other headers your application needs here
+    ],
 
     'exposed_headers' => [],
     
