@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
                 'throttle:api',
                 \Illuminate\Routing\Middleware\SubstituteBindings::class,
+                \Illuminate\Http\Middleware\HandleCors::class,  // Add CORS middleware here
             ],
             // Custom middleware groups
             'role' => \App\Http\Middleware\RoleMiddleware::class,
@@ -30,5 +31,5 @@ return Application::configure(basePath: dirname(__DIR__))
                 'message' => $e->getMessage(),
             ], 500);
         });
-    })->create();
-
+    })
+    ->create();
