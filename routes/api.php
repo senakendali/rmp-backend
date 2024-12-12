@@ -8,6 +8,7 @@ use App\Http\Controllers\GoodsManagementController;
 use App\Http\Controllers\PurchaseRequestController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RolePermissionController;
+use App\Http\Controllers\MenuManagementController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -19,6 +20,8 @@ Route::prefix('vendors')->group(function () {
     Route::middleware('auth:sanctum')->put('/updateStatus/{id}', [VendorsManagementController::class, 'updateVerificationStatus']);
 
 });
+
+Route::apiResource('menus', MenuManagementController::class);
 
 Route::apiResource('goods', GoodsManagementController::class);
 Route::apiResource('purchase-requests', PurchaseRequestController::class);
