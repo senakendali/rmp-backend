@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'paths' => ['api/*'],
+    'paths' => ['*'],
     'allowed_methods' => ['*'],
     'allowed_origins' => [
         'https://rmp-manufacture-frontend-6pzh.vercel.app',
