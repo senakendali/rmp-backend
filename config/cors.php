@@ -17,11 +17,12 @@ return [
     'allowed_methods' => ['*'], // Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
 
     'allowed_origins' => [
-        'https://rmp-manufacture-frontend-6pzh.vercel.app',
-        'localhost:3000',
-        'localhost:5173',
-        '127.0.0.1:8000',
+        'https://rmp-manufacture-frontend-6pzh.vercel.app', // Production frontend
+        'http://localhost:3000', // Local development frontend (React, etc.)
+        'http://localhost:5173', // Local development frontend (Vite, etc.)
+        'http://127.0.0.1:8000', // Local API
     ],
+
     'allowed_origins_patterns' => [],
 
     'allowed_headers' => [
