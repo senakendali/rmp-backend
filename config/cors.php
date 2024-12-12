@@ -17,7 +17,7 @@ return [
     'allowed_methods' => ['*'], // Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
 
     'allowed_origins' => [
-        'https://rmp-manufacture-frontend-6pzh.vercel.app/',
+        'https://rmp-manufacture-frontend-6pzh.vercel.app',
         'localhost:3000',
         'localhost:5173',
         '127.0.0.1:8000',
