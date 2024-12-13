@@ -19,7 +19,11 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => [
+        'http://localhost:5173',  // Local development frontend
+        'https://rmp-manufacture-frontend-6pzh.vercel.app',  // Production frontend on Vercel
+    ],
+
 
     'allowed_origins_patterns' => [],
 
