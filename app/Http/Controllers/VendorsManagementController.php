@@ -208,6 +208,9 @@ class VendorsManagementController extends Controller
 
     public function updateVerificationStatus(Request $request, $id)
     {
+        echo 'test'.'-'.Auth::user()->name;
+        exit;
+        
         try {
             // Validate request
             $request->validate([
