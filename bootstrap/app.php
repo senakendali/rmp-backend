@@ -9,7 +9,7 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__ . '/../routes/web.php',
         api: __DIR__ . '/../routes/api.php',
         commands: __DIR__ . '/../routes/console.php',
-        health: '/up', // Optional health check endpoint
+        health: '/up' // Optional health check endpoint
     )
     ->withMiddleware(function (Middleware $middleware) {
         return [
@@ -18,7 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
                 'throttle:api',
                 \Illuminate\Routing\Middleware\SubstituteBindings::class,
-                \Illuminate\Http\Middleware\HandleCors::class,  // Add CORS middleware here
+                \Illuminate\Http\Middleware\HandleCors::class, // Add CORS middleware here
             ],
             // Custom middleware groups
             'role' => \App\Http\Middleware\RoleMiddleware::class,

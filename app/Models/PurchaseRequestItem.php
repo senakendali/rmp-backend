@@ -12,11 +12,11 @@ class PurchaseRequestItem extends Model
 
     public function purchaseRequest()
     {
-        return $this->belongsTo(PurchaseRequest::class);
+        return $this->belongsTo(PurchaseRequest::class, 'purchase_request_id');
     }
 
     public function goods()
     {
-        return $this->belongsTo(Goods::class);
+        return $this->belongsTo(Goods::class, 'goods_id');
     }
 }

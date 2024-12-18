@@ -12,6 +12,11 @@ class PurchaseRequest extends Model
 
     public function items()
     {
-        return $this->hasMany(PurchaseRequestItem::class);
+        return $this->hasMany(PurchaseRequestItem::class, 'purchase_request_id');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
     }
 }

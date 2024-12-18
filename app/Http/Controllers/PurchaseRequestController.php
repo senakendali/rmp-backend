@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PurchaseRequest;
+use App\Models\PurchaseRequestItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -242,8 +243,41 @@ class PurchaseRequestController extends Controller
         }
     }
 
-
-
+    public function getPurchaseHistory($goodsId, $departmentId){
+        try {
+            $purchaseHistory = PurchaseRequestItem::with(['purchaseRequest', 'goods'])
+                ->where('goods_id', $goodsId)
+                ->whereHas('purchaseRequest', function ($query) use ($departmentId) {
+                    $query->where('department_id', $departmentId);
+                })
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'purchase_request_id' => $item->purchase_request_id,
+                        'goods_id' => $item->goods_id,
+                        'goods_name' => $item->goods ? $item->goods->name : null, // Extract name from goods
+                        'quantity' => $item->quantity,
+                        'measurement' => $item->measurement,
+                        'purchase_request' => $item->purchaseRequest, // Include full purchase request details
+                        'created_at' => $item->created_at,
+                        'updated_at' => $item->updated_at,
+                    ];
+                });
+        
+            return response()->json([
+                'success' => true,
+                'data' => $purchaseHistory
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching purchase history.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+            
+    }
 
     /**
      * Remove the specified purchase request from storage.

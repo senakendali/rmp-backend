@@ -25,8 +25,13 @@ Route::prefix('vendors')->group(function () {
 Route::apiResource('menus', MenuManagementController::class);
 
 Route::apiResource('goods', GoodsManagementController::class);
+Route::prefix('goods')->group(function () {
+    Route::get('/fetchByCategory/{id}', [GoodsManagementController::class, 'fetchGoodsByCategory']);
+});
+
 Route::apiResource('purchase-requests', PurchaseRequestController::class);
 Route::prefix('purchase-requests')->group(function () {
+    Route::get('/history/{itemId}/{departmentId}', [PurchaseRequestController::class, 'getPurchaseHistory']);
     Route::put('/followUp/{id}', [PurchaseRequestController::class, 'followUp']);
     Route::put('/updateStatus/{id}', [PurchaseRequestController::class, 'updateStatus']);
 });

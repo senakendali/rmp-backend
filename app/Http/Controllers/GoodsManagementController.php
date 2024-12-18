@@ -135,6 +135,21 @@ class GoodsManagementController extends Controller
         }
     }
 
+    public function fetchGoodsByCategory($id)
+    {
+        try {
+            $goods = Goods::where('goods_category_id', $id)->get();
+            return response()->json($goods);
+        } catch (\Exception $e) {
+            // Return error response for any unforeseen issues
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while fetching the goods.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
     /**
      * Remove the specified good from storage.
      */
