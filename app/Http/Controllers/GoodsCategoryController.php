@@ -9,9 +9,20 @@ class GoodsCategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(GoodsCategories::paginate(10));
+        // Check if the 'all' query parameter is true
+        $viewAll = $request->query('all', false);
+
+        if ($viewAll) {
+            // Return all data without pagination
+            $data = GoodsCategories::all();
+        } else {
+            // Return paginated data
+            $data = GoodsCategories::paginate(10);
+        }
+
+        return response()->json($data);
     }
 
     /**
