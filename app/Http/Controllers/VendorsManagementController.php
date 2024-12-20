@@ -114,6 +114,10 @@ class VendorsManagementController extends Controller
      */
     public function update(Request $request, Vendors $vendor)
     {
+        // Enable detailed error messages in API response
+        config(['app.debug' => true]);
+
+        // Input validation
         $validated = $request->validate([
             // Validation for vendor
             'name' => 'required|string|max:255',
@@ -148,37 +152,31 @@ class VendorsManagementController extends Controller
                 'address' => $validated['address'],
                 'status' => $validated['status'] ?? $vendor->status,
                 'verification_status' => $validated['verification_status'] ?? $vendor->verification_status,
-                'vendor_type' => $vendorType, // Update vendor_type
+                'vendor_type' => $vendorType,
             ]);
 
             // Handle document updates
             if (!empty($validated['documents'])) {
-                foreach ($validated['documents'] as $document) {
+                foreach ($validated['documents'] as $key => $document) {
                     if (isset($document['id'])) {
-                        // Update existing document
                         $vendorDocument = VendorsDocument::find($document['id']);
                         if ($vendorDocument) {
-                            // If a new file is provided, delete the old one and upload the new file
-                            if (isset($document['file'])) {
-                                // Delete old file
+                            // Check for file and update it
+                            if (isset($document['file']) && $request->hasFile("documents.{$key}.file")) {
                                 if (Storage::exists($vendorDocument->file_name)) {
                                     Storage::delete($vendorDocument->file_name);
                                 }
 
-                                // Upload new file
                                 $filePath = $document['file']->store('vendor_documents', 'public');
-                                $vendorDocument->update([
-                                    'file_name' => $filePath,
-                                ]);
+                                $vendorDocument->update(['file_name' => $filePath]);
                             }
 
-                            // Update description
                             $vendorDocument->update([
                                 'description' => $document['description'] ?? $vendorDocument->description,
                             ]);
                         }
-                    } else {
-                        // Add a new document
+                    } elseif ($request->hasFile("documents.{$key}.file")) {
+                        // Handle a new file if it exists
                         $filePath = $document['file']->store('vendor_documents', 'public');
                         VendorsDocument::create([
                             'vendors_id' => $vendor->id,
@@ -187,17 +185,24 @@ class VendorsManagementController extends Controller
                         ]);
                     }
                 }
+
             }
 
             DB::commit();
 
             return response()->json([
                 'message' => 'Vendor and documents updated successfully.',
-                'vendor' => $vendor->load('documents'), // Load related documents
+                'vendor' => $vendor->load('documents'),
             ], 200);
 
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) { // \Throwable catches both \Exception and \Error
             DB::rollBack();
+
+            // Log the exception for debugging
+            Log::error('Error updating vendor', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
 
             return response()->json([
                 'message' => 'Failed to update vendor and documents.',
@@ -205,6 +210,7 @@ class VendorsManagementController extends Controller
             ], 500);
         }
     }
+
 
     public function updateVerificationStatus(Request $request, $id)
     {
