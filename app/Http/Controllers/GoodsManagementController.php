@@ -11,21 +11,35 @@ class GoodsManagementController extends Controller
     /**
      * Display a listing of the goods.
      */
-    public function index()
+    public function index(Request $request)
     {
         try {
-            // Paginate the goods
-            $goods = Goods::with('category')->paginate(10);
-            return response()->json($goods);
-        } catch (\Exception $e) {
-            // Return general error response
+            // Determine if 'all' mode is requested
+            $viewAll = $request->query('all', false);
+
+            if ($viewAll) {
+                // Fetch all goods with their categories
+                $goods = Goods::with('category')->get();
+            } else {
+                // Paginate goods with their categories
+                $goods = Goods::with('category')->paginate(10);
+            }
+
+            // Return the data in JSON format
+            return response()->json([
+                'status' => 'success',
+                'data' => $goods,
+            ]);
+        } catch (\Throwable $e) {
+            // Handle exceptions and return an error response
             return response()->json([
                 'status' => 'error',
                 'message' => 'An error occurred while fetching goods.',
-                'error' => $e->getMessage()
+                'error' => $e->getMessage(),
             ], 500);
         }
     }
+
 
     /**
      * Store a newly created good in storage.
