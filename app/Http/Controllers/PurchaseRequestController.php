@@ -12,9 +12,27 @@ class PurchaseRequestController extends Controller
     /**
      * Display a listing of the purchase requests.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(PurchaseRequest::with('items')->paginate(10));
+        $query = PurchaseRequest::with('items');
+    
+        switch ($request->get('request_type')) {
+            case 'material':
+                $query->whereHas('items', function ($q) {
+                    $q->where('request_type', 'material');
+                });
+                break;
+            case 'non-material':
+                $query->whereHas('items', function ($q) {
+                    $q->where('request_type', 'non-material');
+                });
+                break;
+            default:
+                // All mode (default)
+                break;
+        }
+    
+        return response()->json($query->paginate(10));
     }
 
     /**
