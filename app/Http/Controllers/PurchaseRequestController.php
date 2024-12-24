@@ -81,13 +81,32 @@ class PurchaseRequestController extends Controller
      */
     public function show($id)
     {
-        $purchaseRequest = PurchaseRequest::with('items')->find($id);
-
+        $purchaseRequest = PurchaseRequest::with([
+            'items.goods.category' // Load goods and their associated category for each item
+        ])->find($id);
+    
         if (!$purchaseRequest) {
             return response()->json(['message' => 'Purchase request not found.'], 404);
         }
-
-        return response()->json($purchaseRequest);
+    
+        // Transform the response to include only the necessary details
+        $purchaseRequestData = [
+            'id' => $purchaseRequest->id,
+            'department_id' => $purchaseRequest->department_id,
+            'created_at' => $purchaseRequest->created_at,
+            'updated_at' => $purchaseRequest->updated_at,
+            'items' => $purchaseRequest->items->map(function ($item) {
+                return [
+                    'id' => $item->id,
+                    'goods_name' => $item->goods->name ?? null, // Retrieve the goods name
+                    'goods_category_name' => $item->goods->category->name ?? null, // Retrieve the category name
+                    'quantity' => $item->quantity ?? null, // Retrieve the quantity
+                    'measurement' => $item->measurement ?? null, // Retrieve measurement
+                ];
+            }),
+        ];
+    
+        return response()->json($purchaseRequestData);
     }
 
     /**

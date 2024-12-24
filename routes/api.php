@@ -29,12 +29,17 @@ Route::prefix('goods')->group(function () {
     Route::get('/fetchByCategory/{id}', [GoodsManagementController::class, 'fetchGoodsByCategory']);
 });
 
+
+//Purchase Request
 Route::apiResource('purchase-requests', PurchaseRequestController::class);
 Route::prefix('purchase-requests')->group(function () {
     Route::get('/history/{itemId}/{departmentId}', [PurchaseRequestController::class, 'getPurchaseHistory']);
     Route::put('/followUp/{id}', [PurchaseRequestController::class, 'followUp']);
     Route::put('/updateStatus/{id}', [PurchaseRequestController::class, 'updateStatus']);
 });
+
+//Purchase Order
+Route::apiResource('purchase-order', PurchaseOrderController::class);
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
