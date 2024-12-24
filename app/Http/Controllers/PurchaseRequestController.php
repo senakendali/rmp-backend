@@ -34,7 +34,7 @@ class PurchaseRequestController extends Controller
                 'items' => 'required|array',
                 'items.*.goods_id' => 'required|exists:goods,id',
                 'items.*.quantity' => 'required|integer|min:1',
-                'items.*.measurement' => 'required|string|max:255',
+                'items.*.measurement_id' => 'required|exists:measurement_units,id', // Adjusted field
             ]);
 
             // Calculate total items
@@ -47,7 +47,7 @@ class PurchaseRequestController extends Controller
                 'buyer' => $validated['buyer'] ?? null,
                 'purchase_reason' => $validated['purchase_reason'] ?? null,
                 'purchase_reason_detail' => $validated['purchase_reason_detail'] ?? null,
-                'department_id' => 1, // Default department ID
+                'department_id' => $validated['department_id'] ?? 1, // Default department ID
                 'total_items' => $totalItems,
                 'notes' => $validated['notes'] ?? null,
                 'created_by' => $validated['created_by'],
@@ -55,7 +55,11 @@ class PurchaseRequestController extends Controller
 
             // Add items to the purchase request
             foreach ($validated['items'] as $item) {
-                $purchaseRequest->items()->create($item);
+                $purchaseRequest->items()->create([
+                    'goods_id' => $item['goods_id'],
+                    'quantity' => $item['quantity'],
+                    'measurement_id' => $item['measurement_id'], // Add new measurement_id
+                ]);
             }
 
             DB::commit();
@@ -74,6 +78,7 @@ class PurchaseRequestController extends Controller
             ], 500);
         }
     }
+
 
 
     /**
@@ -130,11 +135,11 @@ class PurchaseRequestController extends Controller
                 'purchase_reason' => 'nullable|string|max:255',
                 'purchase_reason_detail' => 'nullable|string|max:255',
                 'notes' => 'nullable|string',
-                'updated_by' => 'required|string|max:255',
+                'updated_by' => 'nullable|string|max:255',
                 'items' => 'nullable|array', // Items can be optional during update
                 'items.*.goods_id' => 'required_with:items|exists:goods,id',
                 'items.*.quantity' => 'required_with:items|integer|min:1',
-                'items.*.measurement' => 'required_with:items|string|max:255',
+                'items.*.measurement_id' => 'required_with:items|exists:measurement_units,id', // Adjusted field
             ]);
 
             // Update fields in purchase request
@@ -143,7 +148,7 @@ class PurchaseRequestController extends Controller
                 'purchase_reason' => $validated['purchase_reason'] ?? $purchaseRequest->purchase_reason,
                 'purchase_reason_detail' => $validated['purchase_reason_detail'] ?? $purchaseRequest->purchase_reason_detail,
                 'notes' => $validated['notes'] ?? $purchaseRequest->notes,
-                'updated_by' => 'System', // Mandatory field
+                'updated_by' => 'System', // Update with provided value
             ]);
 
             if (isset($validated['items'])) {
@@ -151,7 +156,11 @@ class PurchaseRequestController extends Controller
                 $purchaseRequest->items()->delete();
 
                 foreach ($validated['items'] as $item) {
-                    $purchaseRequest->items()->create($item);
+                    $purchaseRequest->items()->create([
+                        'goods_id' => $item['goods_id'],
+                        'quantity' => $item['quantity'],
+                        'measurement_id' => $item['measurement_id'], // Add measurement_id
+                    ]);
                 }
 
                 // Update total_items based on new items
@@ -176,6 +185,7 @@ class PurchaseRequestController extends Controller
             ], 500);
         }
     }
+
 
     public function followUp(Request $request, $id)
     {
