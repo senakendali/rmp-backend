@@ -89,40 +89,54 @@ class PurchaseRequestController extends Controller
      */
     public function show($id)
     {
+        // Load the purchase request with related items, goods, categories, and measurement units
         $purchaseRequest = PurchaseRequest::with([
-            'items.goods.category' // Load goods and their associated category for each item
+            'items.goods.category'  // Load goods, category
         ])->find($id);
-    
+
+        // Check if the purchase request exists
         if (!$purchaseRequest) {
             return response()->json(['message' => 'Purchase request not found.'], 404);
         }
-    
-        // Transform the response to include only the necessary details
-        $purchaseRequestData = [
-            'id' => $purchaseRequest->id,
-            'request_date' => $purchaseRequest->request_date,
-            'approval_date' => $purchaseRequest->approval_date,
-            'status' => $purchaseRequest->status,
-            'buyer' => $purchaseRequest->buyer,
-            'hod' => $purchaseRequest->hod,
-            'department_id' => $purchaseRequest->department_id,
-            'buyer' => $purchaseRequest->buyer,
-            'purchase_reason' => $purchaseRequest->purchase_reason,  
-            'created_at' => $purchaseRequest->created_at,
-            'updated_at' => $purchaseRequest->updated_at,
-            'items' => $purchaseRequest->items->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'goods_name' => $item->goods->name ?? null, // Retrieve the goods name
-                    'goods_category_name' => $item->goods->category->name ?? null, // Retrieve the category name
-                    'quantity' => $item->quantity ?? null, // Retrieve the quantity
-                    'measurement' => $item->measurement ?? null, // Retrieve measurement
-                ];
-            }),
-        ];
-    
-        return response()->json($purchaseRequestData);
+
+        try {
+            // Transform the response to include only the necessary details
+            $purchaseRequestData = [
+                'id' => $purchaseRequest->id,
+                'request_date' => $purchaseRequest->request_date,
+                'approval_date' => $purchaseRequest->approval_date,
+                'status' => $purchaseRequest->status,
+                'buyer' => $purchaseRequest->buyer,
+                'hod' => $purchaseRequest->hod,
+                'department_id' => $purchaseRequest->department_id,
+                'purchase_reason' => $purchaseRequest->purchase_reason,
+                'created_at' => $purchaseRequest->created_at,
+                'updated_at' => $purchaseRequest->updated_at,
+                'items' => $purchaseRequest->items->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'goods_name' => $item->goods->name ?? null, // Goods name
+                        'goods_category_name' => $item->goods->category->name ?? null, // Category name
+                        'quantity' => $item->quantity ?? null, // Quantity
+                        'measurement' => $item->measurementUnit->name ?? null, // Measurement unit
+                    ];
+                }),
+            ];
+
+            return response()->json($purchaseRequestData);
+        } catch (\Exception $e) {
+            // Catch any errors and log them for debugging
+            \Log::error('Error fetching purchase request data: ' . $e->getMessage());
+            
+            return response()->json([
+                'message' => 'An error occurred while processing your request.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
+
+
+
 
     /**
      * Update the specified purchase request in storage.
