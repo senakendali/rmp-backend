@@ -92,7 +92,14 @@ class PurchaseRequestController extends Controller
         // Transform the response to include only the necessary details
         $purchaseRequestData = [
             'id' => $purchaseRequest->id,
+            'request_date' => $purchaseRequest->request_date,
+            'approval_date' => $purchaseRequest->approval_date,
+            'status' => $purchaseRequest->status,
+            'buyer' => $purchaseRequest->buyer,
+            'hod' => $purchaseRequest->hod,
             'department_id' => $purchaseRequest->department_id,
+            'buyer' => $purchaseRequest->buyer,
+            'purchase_reason' => $purchaseRequest->purchase_reason,  
             'created_at' => $purchaseRequest->created_at,
             'updated_at' => $purchaseRequest->updated_at,
             'items' => $purchaseRequest->items->map(function ($item) {
