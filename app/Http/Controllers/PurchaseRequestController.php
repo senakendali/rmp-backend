@@ -25,6 +25,7 @@ class PurchaseRequestController extends Controller
         DB::beginTransaction();
         try {
             $validated = $request->validate([
+                'request_type' => 'required|in:material,non-material', // Added validation for request_type
                 'buyer' => 'nullable|string|max:255',
                 'purchase_reason' => 'nullable|string|max:255',
                 'purchase_reason_detail' => 'nullable|string|max:255',
@@ -43,6 +44,7 @@ class PurchaseRequestController extends Controller
 
             // Create purchase request
             $purchaseRequest = PurchaseRequest::create([
+                'request_type' => $validated['request_type'], // Include request_type in the creation
                 'request_date' => $currentDate,
                 'buyer' => $validated['buyer'] ?? null,
                 'purchase_reason' => $validated['purchase_reason'] ?? null,
@@ -78,6 +80,7 @@ class PurchaseRequestController extends Controller
             ], 500);
         }
     }
+
 
 
 
@@ -131,6 +134,7 @@ class PurchaseRequestController extends Controller
             $purchaseRequest = PurchaseRequest::findOrFail($id);
 
             $validated = $request->validate([
+                'request_type' => 'nullable|in:material,non-material', // Allow optional update for request_type
                 'buyer' => 'nullable|string|max:255',
                 'purchase_reason' => 'nullable|string|max:255',
                 'purchase_reason_detail' => 'nullable|string|max:255',
@@ -144,11 +148,12 @@ class PurchaseRequestController extends Controller
 
             // Update fields in purchase request
             $purchaseRequest->update([
+                'request_type' => $validated['request_type'] ?? $purchaseRequest->request_type, // Handle request_type update
                 'buyer' => $validated['buyer'] ?? $purchaseRequest->buyer,
                 'purchase_reason' => $validated['purchase_reason'] ?? $purchaseRequest->purchase_reason,
                 'purchase_reason_detail' => $validated['purchase_reason_detail'] ?? $purchaseRequest->purchase_reason_detail,
                 'notes' => $validated['notes'] ?? $purchaseRequest->notes,
-                'updated_by' => 'System', // Update with provided value
+                'updated_by' => $validated['updated_by'] ?? 'System', // Default to 'System' if not provided
             ]);
 
             if (isset($validated['items'])) {
@@ -185,6 +190,7 @@ class PurchaseRequestController extends Controller
             ], 500);
         }
     }
+
 
 
     public function followUp(Request $request, $id)
