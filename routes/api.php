@@ -9,12 +9,16 @@ use App\Http\Controllers\PurchaseRequestController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\MenuManagementController;
+use App\Http\Controllers\MeasurementUnitController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+//Goods Category
 Route::apiResource('goods-category', GoodsCategoryController::class);
+
+//Vendors
 Route::apiResource('vendors', VendorsManagementController::class);
 Route::prefix('vendors')->group(function () {
     Route::middleware('auth:sanctum')->put('/updateStatus/{id}', [VendorsManagementController::class, 'updateVerificationStatus']);
@@ -22,12 +26,17 @@ Route::prefix('vendors')->group(function () {
 
 });
 
+//Menus/Navigation
 Route::apiResource('menus', MenuManagementController::class);
 
+//Goods
 Route::apiResource('goods', GoodsManagementController::class);
 Route::prefix('goods')->group(function () {
     Route::get('/fetchByCategory/{id}', [GoodsManagementController::class, 'fetchGoodsByCategory']);
 });
+
+//Measurement Unit
+Route::apiResource('measurement-units', MeasurementUnitController::class);
 
 
 //Purchase Request
