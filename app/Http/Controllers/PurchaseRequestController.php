@@ -168,7 +168,7 @@ class PurchaseRequestController extends Controller
             $validated = $request->validate([
                 'request_type' => 'nullable|in:material,non-material', // Allow optional update for request_type
                 'buyer' => 'nullable|string|max:255',
-                'purchase_reason' => 'nullable|string|max:255',
+                'purchase_reason' => 'nullable|string|in:Pembelian Pertama,Restock,Sample',
                 'purchase_reason_detail' => 'nullable|string|max:255',
                 'notes' => 'nullable|string',
                 'updated_by' => 'nullable|string|max:255',
@@ -177,7 +177,7 @@ class PurchaseRequestController extends Controller
                 'items.*.quantity' => 'required_with:items|integer|min:1',
                 'items.*.measurement_id' => 'required_with:items|exists:measurement_units,id', // Adjusted field
             ]);
-
+            
             // Update fields in purchase request
             $purchaseRequest->update([
                 'request_type' => $validated['request_type'] ?? $purchaseRequest->request_type, // Handle request_type update
