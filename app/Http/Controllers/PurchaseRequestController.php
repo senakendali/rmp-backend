@@ -243,14 +243,14 @@ class PurchaseRequestController extends Controller
             // Validate the request data, including the new fields
             $validated = $request->validate([
                 'buyer' => 'required|string|max:255',
-                'purchase_reason' => 'required|string|in:Pembelian Pertama,Restock,Sample',
+                'purchase_reason' => 'nullable|string|in:Pembelian Pertama,Restock,Sample',
                 'purchase_reason_detail' => 'nullable|string|max:255',
             ]);
 
             // Update the purchase request with the validated data
             $purchaseRequest->update([
                 'buyer' => $validated['buyer'],
-                'purchase_reason' => $validated['purchase_reason'], // New field
+                'purchase_reason' => $validated['purchase_reason'] ?? null, // New field
                 'purchase_reason_detail' => $validated['purchase_reason_detail'] ?? null, // New field
                 'followed_by' => 'System',
             ]);
