@@ -10,6 +10,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\MenuManagementController;
 use App\Http\Controllers\MeasurementUnitController;
+use App\Http\Controllers\PurchaseOrderController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -22,8 +23,6 @@ Route::apiResource('goods-category', GoodsCategoryController::class);
 Route::apiResource('vendors', VendorsManagementController::class);
 Route::prefix('vendors')->group(function () {
     Route::middleware('auth:sanctum')->put('/updateStatus/{id}', [VendorsManagementController::class, 'updateVerificationStatus']);
-    //Route::put('/updateStatus/{id}', [VendorsManagementController::class, 'updateVerificationStatus']);
-
 });
 
 //Menus/Navigation
@@ -48,7 +47,14 @@ Route::prefix('purchase-requests')->group(function () {
 });
 
 //Purchase Order
-Route::apiResource('purchase-order', PurchaseOrderController::class);
+Route::prefix('purchase-order')->group(function () {
+    // Resource route for CRUD operations
+    Route::apiResource('', PurchaseOrderController::class);
+
+    // Custom route
+    Route::get('category', [PurchaseOrderController::class, 'getCategoryItemCount']);
+});
+
 
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
