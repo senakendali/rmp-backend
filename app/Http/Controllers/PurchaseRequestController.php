@@ -229,8 +229,10 @@ class PurchaseRequestController extends Controller
     {
         DB::beginTransaction();
         try {
+            // Find the purchase request by ID
             $purchaseRequest = PurchaseRequest::findOrFail($id);
 
+            // Check if the purchase request already has a buyer
             if ($purchaseRequest->buyer !== null) {
                 return response()->json([
                     'status' => 'error',
@@ -238,23 +240,33 @@ class PurchaseRequestController extends Controller
                 ], 400);
             }
 
+            // Validate the request data, including the new fields
             $validated = $request->validate([
-                'buyer' => 'required|string|max:255'
+                'buyer' => 'required|string|max:255',
+                'purchase_reason' => 'required|string|in:Pembelian Pertama,Restock,Sample',
+                'purchase_reason_detail' => 'nullable|string|max:255',
             ]);
 
+            // Update the purchase request with the validated data
             $purchaseRequest->update([
                 'buyer' => $validated['buyer'],
+                'purchase_reason' => $validated['purchase_reason'], // New field
+                'purchase_reason_detail' => $validated['purchase_reason_detail'] ?? null, // New field
                 'followed_by' => 'System',
             ]);
 
+            // Commit the transaction
             DB::commit();
 
+            // Return success response with the updated purchase request
             return response()->json([
                 'status' => 'success',
                 'message' => 'Purchase request followed up successfully.',
                 'data' => $purchaseRequest,
             ], 200);
+
         } catch (\Exception $e) {
+            // Rollback transaction on error
             DB::rollBack();
             return response()->json([
                 'status' => 'error',
@@ -263,6 +275,7 @@ class PurchaseRequestController extends Controller
             ], 500);
         }
     }
+
 
     public function updateStatus(Request $request, $id)
     {
