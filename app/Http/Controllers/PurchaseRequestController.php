@@ -344,6 +344,7 @@ class PurchaseRequestController extends Controller
                         'purchase_request_id' => $item->purchase_request_id,
                         'goods_id' => $item->goods_id,
                         'goods_name' => $item->goods ? $item->goods->name : null, // Extract name from goods
+                        'category_name' => $item->goods->category ? $item->goods->category->name : null, // Extract name from category
                         'quantity' => $item->quantity,
                         'measurement' => $item->measurement,
                         'purchase_request' => $item->purchaseRequest, // Include full purchase request details
