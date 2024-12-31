@@ -31,6 +31,10 @@ class PurchaseRequestController extends Controller
                 // All mode (default)
                 break;
         }
+
+        if ($request->has('status')) {
+            $query->where('status', $request->get('status'));
+        }
     
         return response()->json($query->paginate(10));
     }
