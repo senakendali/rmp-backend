@@ -184,6 +184,26 @@ class PurchaseOrderController extends Controller
         }
     }
 
+    public function listPo()
+    {
+        try {
+            // Retrieve only 'id' and 'purchase_order_number' fields
+            $purchaseOrders = PurchaseOrder::select('id', 'purchase_order_number', 'po_name')->get();
+
+            return response()->json([
+                'success' => true,
+                'data'    => $purchaseOrders,
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An unexpected error occurred.',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
 
 
 
