@@ -103,6 +103,7 @@ class PurchaseOrderController extends Controller
                     'id' => $item->id,
                     'approval_date' => $item->purchaseRequest->approval_date ?? null, // Null-safe access
                     'goods_name' => $item->goods->name ?? null,                       // Null-safe access
+                    'goods_category_id' => $item->goods->category->id ?? null,          // Null-safe access
                     'goods_category_name' => $item->goods->category->name ?? null,    // Null-safe access
                     'purchase_request_id' => $item->purchase_request_id,
                     'goods_id' => $item->goods_id,
@@ -125,6 +126,11 @@ class PurchaseOrderController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function createPo($categoryId, Request $request)
+    {
+        
     }
 
     

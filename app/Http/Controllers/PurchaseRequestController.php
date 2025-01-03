@@ -140,6 +140,7 @@ class PurchaseRequestController extends Controller
                         'goods_name' => $item->goods->name ?? null, // Goods name
                         'goods_category_name' => $item->goods->category->name ?? null, // Category name
                         'quantity' => $item->quantity ?? null, // Quantity
+                        'measurement_id' => $item->measurementUnit->id ?? null, // Measurement unit
                         'measurement' => $item->measurementUnit->name ?? null, // Measurement unit
                     ];
                 }),
