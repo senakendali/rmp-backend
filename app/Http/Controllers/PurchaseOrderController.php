@@ -141,10 +141,21 @@ class PurchaseOrderController extends Controller
             ]);
 
             // Generate the purchase order number automatically
-            $latestOrder = PurchaseOrder::latest()->first(); // Fetch the latest order
-            $lastNumber = $latestOrder ? intval(substr($latestOrder->purchase_order_number, 2)) : 0;
-            $nextNumber = str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
-            $purchaseOrderNumber = 'PO-' . $nextNumber;
+          
+            // Fetch the maximum purchase order number
+            $latestNumber = PurchaseOrder::max('purchase_order_number');
+
+            if ($latestNumber) {
+                // Extract the numeric part after the prefix 'PO'
+                $numericValue = intval(substr($latestNumber, 2));
+            } else {
+                $numericValue = 0; // No records exist yet
+            }
+
+            // Increment and format the next number
+            $nextNumber = str_pad($numericValue + 1, 6, '0', STR_PAD_LEFT);
+            $purchaseOrderNumber = 'PO' . $nextNumber; // Final PO number
+
 
             // Add the generated number to the data
             $validatedData['purchase_order_number'] = $purchaseOrderNumber;
