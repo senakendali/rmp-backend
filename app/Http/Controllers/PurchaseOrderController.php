@@ -10,6 +10,7 @@ use App\Models\GoodsCategories;
 use App\Models\Goods;
 use App\Models\PurchaseRequest;
 use App\Models\PurchaseRequestItem;
+use App\Models\PurchaseOrder;
 
 class PurchaseOrderController extends Controller
 {
@@ -128,10 +129,50 @@ class PurchaseOrderController extends Controller
         }
     }
 
-    public function createPo($categoryId, Request $request)
+    public function createPo(Request $request)
     {
-        
+        try {
+            // Validate the remaining input fields
+            $validatedData = $request->validate([
+                'goods_category_id' => 'required|integer|exists:goods_category,id', // assuming goods_categories exists
+                'po_type'           => 'required|string|max:255',
+                'po_name'           => 'required|string|max:255',
+                'note'              => 'nullable|string',
+            ]);
+
+            // Generate the purchase order number automatically
+            $latestOrder = PurchaseOrder::latest()->first(); // Fetch the latest order
+            $lastNumber = $latestOrder ? intval(substr($latestOrder->purchase_order_number, 2)) : 0;
+            $nextNumber = str_pad($lastNumber + 1, 6, '0', STR_PAD_LEFT);
+            $purchaseOrderNumber = 'PO-' . $nextNumber;
+
+            // Add the generated number to the data
+            $validatedData['purchase_order_number'] = $purchaseOrderNumber;
+
+            // Create the purchase order
+            $purchaseOrder = PurchaseOrder::create($validatedData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Purchase order created successfully.',
+                'data'    => $purchaseOrder,
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors'  => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'An unexpected error occurred.',
+                'error'   => $e->getMessage(), // You might want to hide this in production
+            ], 500);
+        }
     }
+
+
 
     
 

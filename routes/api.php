@@ -54,6 +54,7 @@ Route::prefix('purchase-order')->group(function () {
     // Custom route
     Route::get('category', [PurchaseOrderController::class, 'getCategoryItemCount']);
     Route::get('item-queues', [PurchaseOrderController::class, 'ItemQueues']);
+    Route::middleware('auth:sanctum')->post('create-po', [PurchaseOrderController::class, 'createPo']);
 });
 
 
