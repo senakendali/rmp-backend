@@ -11,6 +11,7 @@ use App\Models\Goods;
 use App\Models\PurchaseRequest;
 use App\Models\PurchaseRequestItem;
 use App\Models\PurchaseOrder;
+use Illuminate\Support\Facades\Auth;
 
 class PurchaseOrderController extends Controller
 {
@@ -129,10 +130,12 @@ class PurchaseOrderController extends Controller
         }
     }
 
+    
+
     public function createPo(Request $request)
     {
         try {
-            // Validate the remaining input fields
+            // Validate the input fields
             $validatedData = $request->validate([
                 'goods_category_id' => 'required|integer|exists:goods_category,id', // assuming goods_categories exists
                 'po_type'           => 'required|string|max:255',
@@ -140,8 +143,6 @@ class PurchaseOrderController extends Controller
                 'note'              => 'nullable|string',
             ]);
 
-            // Generate the purchase order number automatically
-          
             // Fetch the maximum purchase order number
             $latestNumber = PurchaseOrder::max('purchase_order_number');
 
@@ -156,9 +157,9 @@ class PurchaseOrderController extends Controller
             $nextNumber = str_pad($numericValue + 1, 6, '0', STR_PAD_LEFT);
             $purchaseOrderNumber = 'PO' . $nextNumber; // Final PO number
 
-
-            // Add the generated number to the data
+            // Add the generated purchase order number and the authenticated user ID
             $validatedData['purchase_order_number'] = $purchaseOrderNumber;
+            $validatedData['user_created'] = Auth::id(); // Get the ID of the currently authenticated user
 
             // Create the purchase order
             $purchaseOrder = PurchaseOrder::create($validatedData);
@@ -182,6 +183,7 @@ class PurchaseOrderController extends Controller
             ], 500);
         }
     }
+
 
 
 
