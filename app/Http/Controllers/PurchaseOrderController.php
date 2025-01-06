@@ -244,6 +244,7 @@ class PurchaseOrderController extends Controller
                 'department_id' => $requestItemDetails->purchaseRequest->department_id ?? null,
                 'quantity' => $requestItemDetails->quantity,
                 'measurement_id' => $requestItemDetails->measurement_id,
+                'user_created' => Auth::id(), // Get the ID of the currently authenticated user
             ];
     
             // Create the purchase order item
