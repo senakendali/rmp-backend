@@ -106,12 +106,12 @@ class PurchaseOrderController extends Controller
                     'id' => $item->id,
                     'purchase_request_id' => $item->purchase_request_id,
                     'approval_date' => $item->purchaseRequest->approval_date ?? null,
+                    'goods_id' => $item->goods_id,
                     'goods_name' => $item->goods->name ?? null,
                     'goods_category_id' => $item->goods->category->id ?? null,
                     'goods_category_name' => $item->goods->category->name ?? null,
                     'department_id' => $item->purchaseRequest->department->id ?? null, // Retrieve department id
-                    'department_name' => $item->purchaseRequest->department->name ?? null, // Retrieve department name
-                    'goods_id' => $item->goods_id,
+                    'department_name' => $item->purchaseRequest->department->name ?? null, // Retrieve department name   
                     'quantity' => $item->quantity,
                     'measurement_unit_id' => $item->measurement_unit_id,
                     'measurement' => $item->measurementUnit->name ?? null,
