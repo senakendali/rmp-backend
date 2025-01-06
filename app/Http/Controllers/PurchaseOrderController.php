@@ -272,6 +272,54 @@ class PurchaseOrderController extends Controller
             ], 500);
         }
     }
+
+    public function moveItemToAnotherPo(Request $request)
+    {
+        try {
+            // Validate the input fields
+            $validatedData = $request->validate([
+                'purchase_order_id' => 'required|exists:purchase_orders,id',
+                'request_item_id'   => 'required|exists:purchase_request_items,id',
+            ]);
+
+            // Find the existing PurchaseOrderItem by request_item_id
+            $existingItem = PurchaseOrderItem::where('purchase_request_item_id', $validatedData['request_item_id'])->first();
+
+            if (!$existingItem) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The item does not exist in any purchase order.',
+                ], 404);
+            }
+
+            // Update the purchase_order_id to move the item
+            $existingItem->update([
+                'purchase_order_id' => $validatedData['purchase_order_id'],
+                'user_updated' => Auth::id(), // Track the user who updated the record
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Item moved to the new purchase order successfully.',
+                'data' => $existingItem,
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation errors
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Throwable $e) {
+            // Handle unexpected errors
+            return response()->json([
+                'success' => false,
+                'message' => 'An unexpected error occurred.',
+                'error' => config('app.debug') ? $e->getMessage() : 'Please contact support.', // Hide detailed error in production
+            ], 500);
+        }
+    }
+
     
     
 
