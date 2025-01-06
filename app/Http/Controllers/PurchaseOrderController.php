@@ -11,6 +11,7 @@ use App\Models\Goods;
 use App\Models\PurchaseRequest;
 use App\Models\PurchaseRequestItem;
 use App\Models\PurchaseOrder;
+use App\Models\PurchaseOrderItem;
 use Illuminate\Support\Facades\Auth;
 
 class PurchaseOrderController extends Controller
@@ -103,7 +104,7 @@ class PurchaseOrderController extends Controller
             // Transform the data
             $transformedItems = $items->map(function ($item) {
                 return [
-                    'id' => $item->id,
+                    'purchase_request_item_id' => $item->id,
                     'purchase_request_id' => $item->purchase_request_id,
                     'approval_date' => $item->purchaseRequest->approval_date ?? null,
                     'goods_id' => $item->goods_id,
@@ -113,7 +114,7 @@ class PurchaseOrderController extends Controller
                     'department_id' => $item->purchaseRequest->department->id ?? null, // Retrieve department id
                     'department_name' => $item->purchaseRequest->department->name ?? null, // Retrieve department name   
                     'quantity' => $item->quantity,
-                    'measurement_unit_id' => $item->measurement_unit_id,
+                    'measurement_id' => $item->measurementUnit->id,
                     'measurement' => $item->measurementUnit->name ?? null,
                 ];
             });
@@ -206,6 +207,71 @@ class PurchaseOrderController extends Controller
             ], 500);
         }
     }
+
+    public function addItemToPo(Request $request)
+    {
+        try {
+            // Validate the input fields
+            $validatedData = $request->validate([
+                'purchase_order_id' => 'required|exists:purchase_orders,id',
+                'request_item_id'   => 'required|exists:purchase_request_items,id',
+            ]);
+    
+            // Fetch the PurchaseRequestItem details
+            $requestItemDetails = PurchaseRequestItem::where('id', $validatedData['request_item_id'])
+                ->with([
+                    'purchaseRequest:id,approval_date,status,department_id', // Include department_id
+                    'purchaseRequest.department:id,name',                   // Fetch id and name from the department
+                    'goods:id,name,goods_category_id',
+                    'goods.category:id,name',
+                    'measurementUnit:id,name'
+                ])
+                ->first();
+    
+            // Ensure the request item exists and is valid
+            if (!$requestItemDetails) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Request item not found.',
+                ], 404);
+            }
+    
+            // Construct the item data for the purchase order
+            $items = [
+                'purchase_order_id' => $validatedData['purchase_order_id'],
+                'purchase_request_item_id' => $requestItemDetails->id,
+                'goods_id' => $requestItemDetails->goods_id,
+                'department_id' => $requestItemDetails->purchaseRequest->department_id ?? null,
+                'quantity' => $requestItemDetails->quantity,
+                'measurement_id' => $requestItemDetails->measurement_id,
+            ];
+    
+            // Create the purchase order item
+            $purchaseOrderItem = PurchaseOrderItem::create($items);
+    
+            // Return a success response
+            return response()->json([
+                'success' => true,
+                'message' => 'Item added to purchase order successfully.',
+                'data' => $purchaseOrderItem,
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation errors
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Throwable $e) {
+            // Handle unexpected errors
+            return response()->json([
+                'success' => false,
+                'message' => 'An unexpected error occurred.',
+                'error' => config('app.debug') ? $e->getMessage() : 'Please contact support.', // Hide detailed error in production
+            ], 500);
+        }
+    }
+    
     
 
 

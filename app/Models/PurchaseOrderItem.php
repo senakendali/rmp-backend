@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class PurchaseOrderItem extends Model
 {
     protected $table = 'purchase_order_items';
+    protected $guarded = ['created_at', 'updated_at'];
+    protected $dates = ['created_at', 'updated_at'];
 
     public function purchaseOrder()
     {
