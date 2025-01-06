@@ -77,51 +77,54 @@ class PurchaseOrderController extends Controller
     public function ItemQueues(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
-            // Initialize the query for PurchaseRequestItem and select specific fields
-            $query = PurchaseRequestItem::select('id', 'goods_id', 'quantity', 'measurement_id', 'purchase_request_id') // Fetch only necessary columns
+            // Initialize the query for PurchaseRequestItem
+            $query = PurchaseRequestItem::select('id', 'goods_id', 'quantity', 'measurement_id', 'purchase_request_id') 
                 ->with([
-                    'purchaseRequest:id,approval_date,status', // Fetch specific fields from 'purchaseRequest'
-                    'goods:id,name,goods_category_id',               // Fetch specific fields from 'goods'
-                    'goods.category:id,name',                  // Fetch specific fields from 'category'
-                    'measurementUnit:id,name'                  // Fetch specific fields from 'measurementUnit'
+                    'purchaseRequest:id,approval_date,status,department_id', // Include department_id
+                    'purchaseRequest.department:id,name', // Fetch id and name from the department
+                    'goods:id,name,goods_category_id',
+                    'goods.category:id,name',
+                    'measurementUnit:id,name'
                 ])
                 ->whereHas('purchaseRequest', function ($q) {
-                    $q->where('status', 'approved'); // Filter by 'status' on 'purchaseRequest' right from the start
+                    $q->where('status', 'approved'); // Filter for approved status
                 });
 
-            // Optionally, apply other filters (e.g., by goods_type)
+            // Optionally apply filters
             if ($request->has('goods_type')) {
                 $query->whereHas('goods', function ($q) use ($request) {
-                    $q->where('goods_type', $request->get('goods_type')); // Filter by 'goods_type' in 'goods'
+                    $q->where('goods_type', $request->get('goods_type'));
                 });
             }
 
-            // Fetch the filtered data with the selected fields
+            // Get the items
             $items = $query->get();
 
-            // Transform the data with null checks
+            // Transform the data
             $transformedItems = $items->map(function ($item) {
                 return [
                     'id' => $item->id,
-                    'approval_date' => $item->purchaseRequest->approval_date ?? null, // Null-safe access
-                    'goods_name' => $item->goods->name ?? null,                       // Null-safe access
-                    'goods_category_id' => $item->goods->category->id ?? null,          // Null-safe access
-                    'goods_category_name' => $item->goods->category->name ?? null,    // Null-safe access
                     'purchase_request_id' => $item->purchase_request_id,
+                    'approval_date' => $item->purchaseRequest->approval_date ?? null,
+                    'goods_name' => $item->goods->name ?? null,
+                    'goods_category_id' => $item->goods->category->id ?? null,
+                    'goods_category_name' => $item->goods->category->name ?? null,
+                    'department_id' => $item->purchaseRequest->department->id ?? null, // Retrieve department id
+                    'department_name' => $item->purchaseRequest->department->name ?? null, // Retrieve department name
                     'goods_id' => $item->goods_id,
                     'quantity' => $item->quantity,
                     'measurement_unit_id' => $item->measurement_unit_id,
-                    'memasurement' => $item->measurementUnit->name ?? null,          // Null-safe access
+                    'measurement' => $item->measurementUnit->name ?? null,
                 ];
             });
 
-            // Return the data in JSON format
+            // Return the response
             return response()->json([
                 'status' => 'success',
                 'data' => $transformedItems,
             ]);
         } catch (\Throwable $e) {
-            // Handle exceptions and return an error response
+            // Handle errors
             return response()->json([
                 'status' => 'error',
                 'message' => 'An error occurred while fetching goods.',
@@ -129,6 +132,7 @@ class PurchaseOrderController extends Controller
             ], 500);
         }
     }
+
 
     
 
@@ -202,6 +206,7 @@ class PurchaseOrderController extends Controller
             ], 500);
         }
     }
+    
 
 
 

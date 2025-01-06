@@ -24,4 +24,9 @@ class PurchaseRequestItem extends Model
     {
         return $this->belongsTo(MeasurementUnit::class, 'measurement_id');
     }
+
+    public function purchaseOrderItem()
+    {
+        return $this->hasOne(PurchaseOrderItem::class, 'purchase_request_item_id');
+    }
 }
