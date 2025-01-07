@@ -19,4 +19,19 @@ class PurchaseOrderItem extends Model
     {
         return $this->belongsTo(PurchaseRequestItem::class);
     }
+
+    public function goods()
+    {
+        return $this->belongsTo(Goods::class, 'goods_id');
+    }
+
+    public function measurementUnit()
+    {
+        return $this->belongsTo(MeasurementUnit::class, 'measurement_id');
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'department_id');
+    }
 }

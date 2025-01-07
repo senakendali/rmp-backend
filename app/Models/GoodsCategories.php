@@ -15,4 +15,9 @@ class GoodsCategories extends Model
         return $this->hasMany(Goods::class, 'goods_category_id');
     }
 
+    public function purchaseOrders()
+    {
+        return $this->hasMany(PurchaseOrder::class, 'goods_category_id');
+    }
+
 }

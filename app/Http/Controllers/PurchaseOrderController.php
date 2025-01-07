@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -13,16 +12,48 @@ use App\Models\PurchaseRequestItem;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class PurchaseOrderController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        
-    }
+
+     public function index(Request $request)
+     {
+         // Start the query to fetch all PurchaseOrders
+         $query = PurchaseOrder::query();
+     
+         // Filter by po_type if provided
+         switch ($request->get('po_type')) {
+             case 'material':
+                 $query->whereHas('items', function ($q) {
+                     $q->where('po_type', 'material');
+                 });
+                 break;
+             case 'non-material':
+                 $query->whereHas('items', function ($q) {
+                     $q->where('po_type', 'non-material');
+                 });
+                 break;
+             default:
+                 // Default mode (no additional filter applied)
+                 break;
+         }
+     
+         // Filter by category if 'category_id' is provided
+         if ($categoryId = $request->get('category_id')) {
+             $query->where('category_id', $categoryId);  // Assuming 'category_id' is the column in the PurchaseOrder table
+         }
+     
+         // Eager load the 'category' relationship to get category details (e.g., name)
+         $query->with('category');
+     
+         // Paginate the results and return as JSON response
+         return response()->json($query->paginate(10));
+     }
+
 
    
     //Get category name and total number of items per category
@@ -321,16 +352,6 @@ class PurchaseOrderController extends Controller
     }
 
     
-    
-
-
-
-
-
-    
-
-    
-
     /**
      * Store a newly created resource in storage.
      */
@@ -342,10 +363,80 @@ class PurchaseOrderController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        //
-    }
+     
+     public function show($id)
+     {
+         try {
+             // Load the purchase order with related items, goods, categories, and measurement units
+             $purchaseOrder = PurchaseOrder::with([
+                 'items.goods.category',  // Load goods and their category
+                 'category',              // Load the category of the purchase order
+                 'items.measurementUnit',  // Load the measurement unit for items
+                 'items.PurchaseRequestItem',  // Load the purchase request for items
+                 'items.department',  // Load the department for items
+             ])->findOrFail($id);  // Automatically returns 404 if not found
+     
+             // Transform the response to include only the necessary details
+             $purchaseOrderData = $this->transformPurchaseOrder($purchaseOrder);
+     
+             return response()->json($purchaseOrderData);
+         } catch (ModelNotFoundException $e) {
+             // Catch if the PurchaseOrder is not found and return a 404 error
+             \Log::error('PurchaseOrder not found: ' . $e->getMessage());
+             return response()->json(['message' => 'Purchase order not found.'], 404);
+         } catch (\Exception $e) {
+             // Catch any other errors and log them for debugging
+             \Log::error('Error fetching purchase order data: ' . $e->getMessage());
+             
+             // Optionally, you can log the entire exception to get more context
+             \Log::error('Exception details: ' . $e);
+     
+             return response()->json([
+                 'message' => 'An error occurred while processing your request.',
+                 'error' => $e->getMessage(),
+             ], 500);
+         }
+     }
+     
+     /**
+      * Transform the PurchaseOrder data into a simplified format.
+      */
+     private function transformPurchaseOrder($purchaseOrder)
+     {
+         return [
+             'id' => $purchaseOrder->id,
+             'po_date' => $purchaseOrder->created_at,
+             'po_number' => $purchaseOrder->purchase_order_number,
+             'po_type' => $purchaseOrder->po_type,
+             'category_id' => $purchaseOrder->category_id,
+             'category_name' => $purchaseOrder->category->name ?? null, // Safely access category name
+             'po_name' => $purchaseOrder->po_name,
+             'note' => $purchaseOrder->note,
+             'items' => $this->transformItems($purchaseOrder->items), // Transform items data
+         ];
+     }
+     
+     /**
+      * Transform each item in the purchase order into the desired format.
+      */
+     private function transformItems($items)
+     {
+         return $items->map(function ($item) {
+             return [
+                 'id' => $item->id,
+                 'purchase_request_id' => $item->PurchaseRequestItem->purchase_request_id,
+                 'goods_id' => $item->goods_id,
+                 'goods_name' => $item->goods->name ?? null,  // Safely access goods name
+                 'goods_category_name' => $item->goods->category->name ?? null, // Safely access category name
+                 'department_name' => $item->department->name ?? null, // Safely access department name
+                 'quantity' => $item->quantity ?? null,  // Quantity
+                 'measurement_id' => $item->measurementUnit->id ?? null,  // Safely access measurement unit ID
+                 'measurement' => $item->measurementUnit->name ?? null,  // Safely access measurement unit name
+             ];
+         });
+     }
+     
+    
 
     /**
      * Update the specified resource in storage.

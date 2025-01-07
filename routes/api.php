@@ -52,12 +52,14 @@ Route::prefix('purchase-order')->group(function () {
     Route::apiResource('', PurchaseOrderController::class);
 
     // Custom route
+    
     Route::get('category', [PurchaseOrderController::class, 'getCategoryItemCount']);
     Route::get('item-queues', [PurchaseOrderController::class, 'ItemQueues']);
     Route::middleware('auth:sanctum')->post('create-po', [PurchaseOrderController::class, 'createPo']);
     Route::middleware('auth:sanctum')->post('add-item-to-po', [PurchaseOrderController::class, 'addItemToPo']);
     Route::middleware('auth:sanctum')->patch('move-item-to-another-po', [PurchaseOrderController::class, 'moveItemToAnotherPo']);
     Route::get('list-po', [PurchaseOrderController::class, 'listPo']);
+    Route::get('{id}', [PurchaseOrderController::class, 'show']);
 });
 
 
