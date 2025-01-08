@@ -129,6 +129,14 @@ class PurchaseOrderController extends Controller
                 });
             }
 
+            if($request->has('category_id')) {
+                $query->whereHas('goods', function ($q) use ($request) {
+                    $q->where('goods_category_id', $request->get('category_id'));
+                });
+            }
+
+            
+
             // Get the items
             $items = $query->get();
 
