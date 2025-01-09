@@ -362,12 +362,48 @@ class PurchaseOrderController extends Controller
 
     
     /**
-     * Store a newly created resource in storage.
+     * Add a vendor to a purchase order
      */
-    public function store(Request $request)
+    public function addVendorToPurchaseOrder(Request $request)
     {
-        //
+        try {
+            // Validate the incoming request data
+            $validatedData = $request->validate([
+                'purchase_order_id' => 'required|exists:purchase_orders,id',
+                'vendor_id' => 'required|exists:vendors,id',
+                'status' => 'required|in:pending,approved,rejected',
+                'bod_approval' => 'nullable|in:yes,no',
+                'notes' => 'nullable|string',
+            ]);
+    
+            // Add the authenticated user's ID as the creator
+            $validatedData['user_created'] = auth()->id();
+    
+            // Create a new participant record
+            $participant = PurchaseOrderParticipant::create($validatedData);
+    
+            // Return a success response
+            return response()->json([
+                'success' => true,
+                'message' => 'Vendor added to purchase order successfully.',
+                'data' => $participant,
+            ], 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation errors
+            return response()->json([
+                'message' => 'Validation Error',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Handle general errors
+            return response()->json([
+                'message' => 'An unexpected error occurred',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
+    
 
     /**
      * Display the specified resource.

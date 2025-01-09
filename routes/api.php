@@ -59,6 +59,7 @@ Route::prefix('purchase-order')->group(function () {
     Route::middleware('auth:sanctum')->post('add-item-to-po', [PurchaseOrderController::class, 'addItemToPo']);
     Route::middleware('auth:sanctum')->patch('move-item-to-another-po', [PurchaseOrderController::class, 'moveItemToAnotherPo']);
     Route::get('list-po', [PurchaseOrderController::class, 'listPo']);
+    Route::middleware('auth:sanctum')->post('add-vendor-to-po', [PurchaseOrderController::class, 'addVendorToPurchaseOrder']);
     Route::get('{id}', [PurchaseOrderController::class, 'show']);
 });
 
