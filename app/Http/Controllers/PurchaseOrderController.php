@@ -11,6 +11,7 @@ use App\Models\PurchaseRequest;
 use App\Models\PurchaseRequestItem;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
+use App\Models\PurchaseOrderParticipant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -124,8 +125,8 @@ class PurchaseOrderController extends Controller
 
             // Optionally apply filters
             if ($request->has('goods_type')) {
-                $query->whereHas('goods', function ($q) use ($request) {
-                    $q->where('goods_type', $request->get('goods_type'));
+                $query->whereHas('purchaseRequest', function ($q) use ($request) {
+                    $q->where('request_type', $request->get('goods_type'));
                 });
             }
 
