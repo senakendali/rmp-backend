@@ -480,6 +480,78 @@ class PurchaseOrderController extends Controller
              ];
          });
      }
+
+    /**
+     * Record vendor offers for a purchase order.
+     */
+     public function submitVendorOffers(Request $request)
+     {
+         $request->validate([
+             'purchase_order_id' => 'required|exists:purchase_orders,id',
+             'vendor_id' => 'required|exists:vendors,id',
+             'payment_method' => 'nullable|in:Bayar Sebagian,Bayar Lunas Diakhir',
+             'delivery_address' => 'nullable|in:Factory,Head Office,Lab Jakarta',
+             'delivery_cost' => 'nullable|numeric',
+             'offering_document' => 'nullable|file|mimes:pdf,doc,docx',
+             'items' => 'required|array',
+             'items.*.po_item_id' => 'required|exists:purchase_order_items,id',
+             'items.*.offered_price' => 'required|numeric',
+             'costs' => 'nullable|array',
+             'costs.*.cost_name' => 'required_with:costs|string',
+             'costs.*.cost_value' => 'required_with:costs|numeric',
+         ]);
+     
+         try {
+             // Handle offering document upload if provided
+             $offeringDocumentPath = null;
+             if ($request->hasFile('offering_document')) {
+                 $offeringDocumentPath = $request->file('offering_document')->store('public/offering_documents');
+
+             }
+     
+             // Create purchase_order_offer
+             $offer = PurchaseOrderOffer::create([
+                 'purchase_order_id' => $request->purchase_order_id,
+                 'vendor_id' => $request->vendor_id,
+                 'status' => $request->status,
+                 'payment_method' => $request->payment_method,
+                 'delivery_address' => $request->delivery_address,
+                 'delivery_cost' => $request->delivery_cost,
+                 'offering_document' => $offeringDocumentPath,
+             ]);
+     
+             // Create offer items
+             foreach ($request->items as $item) {
+                 PurchaseOrderOfferItem::create([
+                     'purchase_order_offer_id' => $offer->id,
+                     'po_item_id' => $item['po_item_id'],
+                     'offered_price' => $item['offered_price'],
+                 ]);
+             }
+     
+             // Create offer costs if any
+             if (!empty($request->costs)) {
+                 foreach ($request->costs as $cost) {
+                     PurchaseOrderOfferCost::create([
+                         'purchase_order_offer_id' => $offer->id,
+                         'cost_name' => $cost['cost_name'],
+                         'cost_value' => $cost['cost_value'],
+                     ]);
+                 }
+             }
+     
+             return response()->json([
+                 'message' => 'Purchase order offer successfully submitted.',
+                 'offer_id' => $offer->id,
+             ], 201);
+         } catch (Exception $e) {
+             return response()->json([
+                 'message' => 'An error occurred while submitting the purchase order offer.',
+                 'error' => $e->getMessage(),
+             ], 500);
+         }
+    }
+     
      
     
 
