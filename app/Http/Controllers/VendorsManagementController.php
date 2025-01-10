@@ -20,9 +20,18 @@ class VendorsManagementController extends Controller
     /**
      * Display a listing of the vendors.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $vendors = Vendors::with('documents')->paginate(10);
+        // Check if the 'all' query parameter is true
+        $viewAll = $request->query('all', false);
+
+        if ($viewAll) {
+            // Return all data without pagination
+            $vendors = Vendors::with('documents')->get();
+        } else {
+            // Return paginated data
+            $vendors = Vendors::with('documents')->paginate(10);
+        }
         return response()->json($vendors);
     }
 
