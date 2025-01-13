@@ -17,6 +17,7 @@ use App\Models\PurchaseOrderOffer;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class PurchaseOrderController extends Controller
 {
@@ -453,6 +454,56 @@ class PurchaseOrderController extends Controller
         }
     }
 
+    public function manageVendorsForPurchaseOrder(Request $request)
+    {
+        try {
+            // Validate the incoming request data
+            $validatedData = $request->validate([
+                'purchase_order_id' => 'required|exists:purchase_orders,id',
+                'needs_approval'    => 'required|in:yes,no',
+                'notes'             => 'nullable|string',
+                'vendors'           => 'required|array',
+                'vendors.*.vendor_id' => 'required|exists:vendors,id'
+            ]);
+
+            // Update the purchase order fields
+            $purchaseOrder = PurchaseOrder::findOrFail($validatedData['purchase_order_id']);
+            $purchaseOrder->needs_approval = $validatedData['needs_approval'];
+            $purchaseOrder->notes = $validatedData['notes'];
+            $purchaseOrder->user_confirmed = Auth::id(); // Get the ID of the currently authenticated user
+            $purchaseOrder->save();
+
+            // Add vendors to the purchase order
+            $vendorsData = $validatedData['vendors'];
+            foreach ($vendorsData as $vendor) {
+                PurchaseOrderParticipant::create([
+                    'purchase_order_id' => $validatedData['purchase_order_id'],
+                    'vendor_id'         => $vendor['vendor_id'],
+                    'status'            => 'pending',
+                    'user_created'      => Auth::id(),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Vendors managed for purchase order successfully.',
+                'data'    => $purchaseOrder,
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation errors
+            return response()->json([
+                'message' => 'Validation Error',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Handle general errors
+            return response()->json([
+                'message' => 'An unexpected error occurred',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
     /**
      * Display the specified resource.
      */
@@ -532,7 +583,7 @@ class PurchaseOrderController extends Controller
     /**
      * Record vendor offers for a purchase order.
      */
-     /*public function submitVendorOffers(Request $request)
+     public function submitVendorOffers(Request $request)
      {
          $request->validate([
              'purchase_order_id' => 'required|exists:purchase_orders,id',
@@ -597,7 +648,7 @@ class PurchaseOrderController extends Controller
                  'error' => $e->getMessage(),
              ], 500);
          }
-    }*/
+    }
      
      
     

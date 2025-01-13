@@ -59,8 +59,10 @@ Route::prefix('purchase-order')->group(function () {
     Route::middleware('auth:sanctum')->post('add-item-to-po', [PurchaseOrderController::class, 'addItemToPo']);
     Route::middleware('auth:sanctum')->patch('move-item-to-another-po', [PurchaseOrderController::class, 'moveItemToAnotherPo']);
     Route::get('list-po', [PurchaseOrderController::class, 'listPo']);
-    Route::middleware('auth:sanctum')->post('add-vendor-to-po', [PurchaseOrderController::class, 'addVendorToPurchaseOrder']);
-    Route::middleware('auth:sanctum')->put('confirm-purchase-order', [PurchaseOrderController::class, 'confirmVendorsOnPurchaseOrder']); 
+    //Route::middleware('auth:sanctum')->post('add-vendor-to-po', [PurchaseOrderController::class, 'addVendorToPurchaseOrder']);
+    //Route::middleware('auth:sanctum')->put('confirm-purchase-order', [PurchaseOrderController::class, 'confirmVendorsOnPurchaseOrder']); 
+    Route::middleware('auth:sanctum')->post('manage-vendors-for-po', [PurchaseOrderController::class, 'manageVendorsForPurchaseOrder']);
+    
     Route::middleware('auth:sanctum')->post('submit-vendor-offers', [PurchaseOrderController::class, 'submitVendorOffers']); 
     Route::get('{id}', [PurchaseOrderController::class, 'show']);
 });
