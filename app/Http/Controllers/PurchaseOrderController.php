@@ -12,6 +12,8 @@ use App\Models\PurchaseRequestItem;
 use App\Models\PurchaseOrder;
 use App\Models\PurchaseOrderItem;
 use App\Models\PurchaseOrderParticipant;
+use App\Models\User;
+use App\Models\PurchaseOrderOffer; 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -484,7 +486,7 @@ class PurchaseOrderController extends Controller
     /**
      * Record vendor offers for a purchase order.
      */
-     public function submitVendorOffers(Request $request)
+     /*public function submitVendorOffers(Request $request)
      {
          $request->validate([
              'purchase_order_id' => 'required|exists:purchase_orders,id',
@@ -513,7 +515,6 @@ class PurchaseOrderController extends Controller
              $offer = PurchaseOrderOffer::create([
                  'purchase_order_id' => $request->purchase_order_id,
                  'vendor_id' => $request->vendor_id,
-                 'status' => $request->status,
                  'payment_method' => $request->payment_method,
                  'delivery_address' => $request->delivery_address,
                  'delivery_cost' => $request->delivery_cost,
@@ -550,7 +551,7 @@ class PurchaseOrderController extends Controller
                  'error' => $e->getMessage(),
              ], 500);
          }
-    }
+    }*/
      
      
     
