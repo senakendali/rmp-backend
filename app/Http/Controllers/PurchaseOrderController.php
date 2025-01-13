@@ -463,7 +463,8 @@ class PurchaseOrderController extends Controller
                 'needs_approval'    => 'required|in:yes,no',
                 'notes'             => 'nullable|string',
                 'vendors'           => 'required|array',
-                'vendors.*.vendor_id' => 'required|exists:vendors,id'
+                'vendors.*.vendor_id' => 'required|exists:vendors,id',
+                'vendors.*.status'   => 'required|in:pending,approved,rejected'
             ]);
 
             // Update the purchase order fields
@@ -479,7 +480,7 @@ class PurchaseOrderController extends Controller
                 PurchaseOrderParticipant::create([
                     'purchase_order_id' => $validatedData['purchase_order_id'],
                     'vendor_id'         => $vendor['vendor_id'],
-                    'status'            => 'pending',
+                    'status'            => $vendor['status'],
                     'user_created'      => Auth::id(),
                 ]);
             }
