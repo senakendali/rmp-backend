@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Models\PurchaseOrderOffer; 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class PurchaseOrderController extends Controller
 {
@@ -405,7 +406,52 @@ class PurchaseOrderController extends Controller
             ], 500);
         }
     }
+
     
+    /**
+     * Confirm vendors on a purchase order  
+     */
+    public function confirmVendorsOnPurchaseOrder(Request $request)
+    {
+        // Validate the incoming request
+        $validator = Validator::make($request->all(), [
+            'purchase_order_id' => 'required|exists:purchase_orders,id',
+            'needs_approval'   => 'required|in:yes,no',
+            'notes'            => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            // Find the PurchaseOrder record
+            $purchaseOrder = PurchaseOrder::findOrFail($request->purchase_order_id);
+
+            // Update fields
+            $purchaseOrder->needs_approval = $request->needs_approval;
+            $purchaseOrder->notes = $request->notes;
+            $purchaseOrder->user_confirmed = Auth::id(); // Get the ID of the currently authenticated user
+
+            // Save changes
+            $purchaseOrder->save();
+
+            return response()->json([
+                'status'  => 'success',
+                'message' => 'Confirmation is successful.',
+                'data'    => $purchaseOrder
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Confirmation is failed.',
+                'error'   => $e->getMessage()
+            ], 500);
+        }
+    }
 
     /**
      * Display the specified resource.
