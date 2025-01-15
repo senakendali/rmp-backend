@@ -14,6 +14,11 @@ use App\Models\PurchaseOrderItem;
 use App\Models\PurchaseOrderParticipant;
 use App\Models\User;
 use App\Models\PurchaseOrderOffer; 
+use App\Models\PurchaseOrderOfferItems;
+use App\Models\PurchaseOrderOfferCosts; 
+use App\Models\PurchaseOrderPayment;
+use App\Models\PurchaseOrderPaymentRecord;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -584,72 +589,104 @@ class PurchaseOrderController extends Controller
     /**
      * Record vendor offers for a purchase order.
      */
-     public function submitVendorOffers(Request $request)
-     {
-         $request->validate([
-             'purchase_order_id' => 'required|exists:purchase_orders,id',
-             'vendor_id' => 'required|exists:vendors,id',
-             'payment_method' => 'nullable|in:Bayar Sebagian,Bayar Lunas Diakhir',
-             'delivery_address' => 'nullable|in:Factory,Head Office,Lab Jakarta',
-             'delivery_cost' => 'nullable|numeric',
-             'offering_document' => 'nullable|file|mimes:pdf,doc,docx',
-             'items' => 'required|array',
-             'items.*.po_item_id' => 'required|exists:purchase_order_items,id',
-             'items.*.offered_price' => 'required|numeric',
-             'costs' => 'nullable|array',
-             'costs.*.cost_name' => 'required_with:costs|string',
-             'costs.*.cost_value' => 'required_with:costs|numeric',
-         ]);
-     
-         try {
-             // Handle offering document upload if provided
-             $offeringDocumentPath = null;
-             if ($request->hasFile('offering_document')) {
-                 $offeringDocumentPath = $request->file('offering_document')->store('public/offering_documents');
+    public function submitVendorOffers(Request $request) 
+    {
+        try {
+            // Validate the incoming request
+            $validated = $request->validate([
+                'purchase_order_id' => 'required|exists:purchase_orders,id',
+                'vendor_id' => 'required|exists:vendors,id',
+                'payment_method' => 'nullable|in:Bayar Sebagian,Bayar Lunas Diakhir',
+                'delivery_address' => 'nullable|in:Factory,Head Office,Lab Jakarta',
+                'delivery_cost' => 'nullable|numeric',
+                'offering_document' => 'nullable|file|mimes:pdf,doc,docx',
+                'items' => 'required|array',
+                'items.*.po_item_id' => 'required|exists:purchase_order_items,id',
+                'items.*.offered_price' => 'required|numeric',
+                'costs' => 'nullable|array',
+                'costs.*.cost_name' => 'required_with:costs|string',
+                'costs.*.cost_value' => 'required_with:costs|numeric',
+                'payment' => 'required|array',
+                'payment.amount' => 'required|numeric',
+                'payment.down_payment_amount' => 'required|numeric',
+                'payment.records' => 'required|array',
+                'payment.records.*.amount_paid' => 'required|numeric',
+                'payment.records.*.remarks' => 'nullable|string',
+            ]);
 
-             }
-     
-             // Create purchase_order_offer
-             $offer = PurchaseOrderOffer::create([
-                 'purchase_order_id' => $request->purchase_order_id,
-                 'vendor_id' => $request->vendor_id,
-                 'payment_method' => $request->payment_method,
-                 'delivery_address' => $request->delivery_address,
-                 'delivery_cost' => $request->delivery_cost,
-                 'offering_document' => $offeringDocumentPath,
-             ]);
-     
-             // Create offer items
-             foreach ($request->items as $item) {
-                 PurchaseOrderOfferItem::create([
-                     'purchase_order_offer_id' => $offer->id,
-                     'po_item_id' => $item['po_item_id'],
-                     'offered_price' => $item['offered_price'],
-                 ]);
-             }
-     
-             // Create offer costs if any
-             if (!empty($request->costs)) {
-                 foreach ($request->costs as $cost) {
-                     PurchaseOrderOfferCost::create([
-                         'purchase_order_offer_id' => $offer->id,
-                         'cost_name' => $cost['cost_name'],
-                         'cost_value' => $cost['cost_value'],
-                     ]);
-                 }
-             }
-     
-             return response()->json([
-                 'message' => 'Purchase order offer successfully submitted.',
-                 'offer_id' => $offer->id,
-             ], 201);
-         } catch (Exception $e) {
-             return response()->json([
-                 'message' => 'An error occurred while submitting the purchase order offer.',
-                 'error' => $e->getMessage(),
-             ], 500);
-         }
+            // Handle offering document upload if provided
+            $offeringDocumentPath = null;
+            if ($request->hasFile('offering_document')) {
+                $offeringDocumentPath = $request->file('offering_document')->store('public/offering_documents');
+            }
+
+            // Create purchase order offer
+            $offer = PurchaseOrderOffer::create([
+                'purchase_order_id' => $validated['purchase_order_id'],
+                'vendor_id' => $validated['vendor_id'],
+                'payment_method' => $validated['payment_method'],
+                'delivery_address' => $validated['delivery_address'],
+                'delivery_cost' => $validated['delivery_cost'],
+                'offering_document' => $offeringDocumentPath,
+            ]);
+
+            // Create offer items
+            foreach ($validated['items'] as $item) {
+                PurchaseOrderOfferItems::create([
+                    'purchase_order_offer_id' => $offer->id,
+                    'po_item_id' => $item['po_item_id'],
+                    'offered_price' => $item['offered_price'],
+                ]);
+            }
+
+            // Create offer costs if any
+            if (!empty($validated['costs'])) {
+                foreach ($validated['costs'] as $cost) {
+                    PurchaseOrderOfferCosts::create([
+                        'purchase_order_offer_id' => $offer->id,
+                        'cost_name' => $cost['cost_name'],
+                        'cost_value' => $cost['cost_value'],
+                    ]);
+                }
+            }
+
+            // Insert into purchase_order_payments
+            $payment = $validated['payment'];
+            $purchaseOrderPayment = PurchaseOrderPayment::create([
+                'purchase_order_offer_id' => $offer->id,
+                'payment_method' => $validated['payment_method'] === 'Bayar Lunas Diakhir' ? 'pay_in_full' : 'pay_in_part',
+                'amount' => $payment['amount'],
+                'down_payment_amount' => $payment['down_payment_amount'],
+            ]);
+
+            // Insert into purchase_order_payment_records
+            foreach ($payment['records'] as $record) {
+                PurchaseOrderPaymentRecord::create([
+                    'purchase_order_payment_id' => $purchaseOrderPayment->id,
+                    'amount_paid' => $record['amount_paid'],
+                    'remarks' => $record['remarks'] ?? null,
+                ]);
+            }
+
+            return response()->json([
+                'message' => 'Purchase order offer successfully submitted.',
+                'offer_id' => $offer->id,
+            ], 201);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (Exception $e) {
+            Log::error($e->getMessage(), ['trace' => $e->getTrace()]);
+
+            return response()->json([
+                'message' => 'An error occurred while submitting the purchase order offer.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
     }
+
      
      
     
