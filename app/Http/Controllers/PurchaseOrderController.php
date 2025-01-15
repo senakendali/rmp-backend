@@ -596,7 +596,7 @@ class PurchaseOrderController extends Controller
             $validated = $request->validate([
                 'purchase_order_id' => 'required|exists:purchase_orders,id',
                 'vendor_id' => 'required|exists:vendors,id',
-                'payment_method' => 'nullable|in:Bayar Sebagian,Bayar Lunas Diakhir',
+                'payment_method' => 'nullable|in:Bayar Sebagian,Bayar Lunas',
                 'delivery_address' => 'nullable|in:Factory,Head Office,Lab Jakarta',
                 'delivery_cost' => 'nullable|numeric',
                 'offering_document' => 'nullable|file|mimes:pdf,doc,docx',
@@ -624,7 +624,6 @@ class PurchaseOrderController extends Controller
             $offer = PurchaseOrderOffer::create([
                 'purchase_order_id' => $validated['purchase_order_id'],
                 'vendor_id' => $validated['vendor_id'],
-                'payment_method' => $validated['payment_method'],
                 'delivery_address' => $validated['delivery_address'],
                 'delivery_cost' => $validated['delivery_cost'],
                 'offering_document' => $offeringDocumentPath,
@@ -654,7 +653,7 @@ class PurchaseOrderController extends Controller
             $payment = $validated['payment'];
             $purchaseOrderPayment = PurchaseOrderPayment::create([
                 'purchase_order_offer_id' => $offer->id,
-                'payment_method' => $validated['payment_method'] === 'Bayar Lunas Diakhir' ? 'pay_in_full' : 'pay_in_part',
+                'payment_method' => $validated['payment_method'] === 'Bayar Lunas' ? 'pay_in_full' : 'pay_in_part',
                 'amount' => $payment['amount'],
                 'down_payment_amount' => $payment['down_payment_amount'],
             ]);
