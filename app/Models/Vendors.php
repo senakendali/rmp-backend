@@ -22,4 +22,9 @@ class Vendors extends Model
     {
         return $this->hasMany(VendorsDocument::class, 'vendors_id');
     }
+    
+    public function purchaseOrderOffers()
+    {
+        return $this->hasMany(PurchaseOrderOffer::class, 'vendors_id');
+    }
 }

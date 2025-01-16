@@ -35,4 +35,9 @@ class PurchaseOrder extends Model
     {
         return $this->belongsTo(GoodsCategories::class, 'goods_category_id');
     }
+
+    public function participants()
+    {
+        return $this->hasMany(PurchaseOrderParticipant::class, 'purchase_order_id');
+    }
 }

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Models\GoodsCategories;
+use App\Models\Vendors;
 use App\Models\Goods;
 use App\Models\PurchaseRequest;
 use App\Models\PurchaseRequestItem;
@@ -563,6 +564,7 @@ class PurchaseOrderController extends Controller
              'po_name' => $purchaseOrder->po_name,
              'note' => $purchaseOrder->note,
              'items' => $this->transformItems($purchaseOrder->items), // Transform items data
+             'vendors' => $this->transformVendors($purchaseOrder->participants), // Transform vendor data
          ];
      }
      
@@ -585,6 +587,23 @@ class PurchaseOrderController extends Controller
              ];
          });
      }
+
+     private function transformVendors($vendors)
+    {
+        return $vendors->map(function ($vendor) {
+           
+            return [
+                'id' => $vendor->vendor_id,
+                'name' => $vendor->vendor->name,
+                'pic_name' => $vendor->vendor->pic_name,
+                'pic_phone' => $vendor->vendor->pic_phone,
+                'pic_email' => $vendor->vendor->pic_email,
+                'status' => $vendor->status,
+                'is_submit_offer' => $vendor->purchaseOrderOffers()->where('vendor_id', $vendor->vendor_id)->exists(),  // Set to true if the vendor has submitted an offer
+            ];
+        });
+    }
+
 
     /**
      * Record vendor offers for a purchase order.

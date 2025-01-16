@@ -29,4 +29,9 @@ class PurchaseOrderParticipant extends Model
     {
         return $this->belongsTo(User::class, 'user_updated');
     }
+
+    public function purchaseOrderOffers()
+    {
+        return $this->hasMany(PurchaseOrderOffer::class, 'vendor_id');
+    }
 }
