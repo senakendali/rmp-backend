@@ -17,22 +17,22 @@ class PurchaseOrderOffer extends Model
 
     public function vendor()
     {
-        return $this->belongsTo(Vendors::class);
+        return $this->belongsTo(Vendors::class, 'vendor_id');
     }
 
     public function purchaseOrderItems()
     {
-        return $this->hasMany(PurchaseOrderOfferItems::class);
+        return $this->hasMany(PurchaseOrderOfferItems::class, 'purchase_order_offer_id');
     }
 
     public function purchaseOrderCosts()
     {
-        return $this->hasMany(PurchaseOrderOfferCosts::class);
+        return $this->hasMany(PurchaseOrderOfferCosts::class, 'purchase_order_offer_id');
     }
 
     public function purchaseOrderPayments()
     {
-        return $this->hasMany(PurchaseOrderPayment::class);
+        return $this->hasMany(PurchaseOrderPayment::class, 'purchase_order_offer_id');
     }
     
 }

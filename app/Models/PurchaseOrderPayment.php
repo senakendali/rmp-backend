@@ -13,12 +13,12 @@ class PurchaseOrderPayment extends Model
 
     public function purchaseOrderOffer()
     {
-        return $this->belongsTo(PurchaseOrderOffer::class);
+        return $this->belongsTo(PurchaseOrderOffer::class, 'purchase_order_offer_id');
     }
 
     public function paymentRecords()
     {
-        return $this->hasMany(PurchaseOrderPaymentRecord::class);
+        return $this->hasMany(PurchaseOrderPaymentRecord::class, 'purchase_order_payment_id');
     }
 
 }

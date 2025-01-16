@@ -707,6 +707,11 @@ class PurchaseOrderController extends Controller
         }
     }
 
+    /**
+     * Fetch vendor offer details
+     * 
+     * @param int $offerId
+     */
     public function fetchVendorOfferDetails($offerId)
     {
         try {
