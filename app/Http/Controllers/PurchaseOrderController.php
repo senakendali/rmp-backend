@@ -599,6 +599,7 @@ class PurchaseOrderController extends Controller
                 'pic_phone' => $vendor->vendor->pic_phone,
                 'pic_email' => $vendor->vendor->pic_email,
                 'status' => $vendor->status,
+                'priority' => null,
                 'is_submit_offer' => $vendor->purchaseOrderOffers()->where('vendor_id', $vendor->vendor_id)->exists(),  // Set to true if the vendor has submitted an offer
             ];
         });
