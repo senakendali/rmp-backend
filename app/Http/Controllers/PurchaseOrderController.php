@@ -593,13 +593,14 @@ class PurchaseOrderController extends Controller
         return $vendors->map(function ($vendor) {
            
             return [
-                'id' => $vendor->vendor_id,
+                'vendor_id' => $vendor->vendor_id,
                 'name' => $vendor->vendor->name,
                 'pic_name' => $vendor->vendor->pic_name,
                 'pic_phone' => $vendor->vendor->pic_phone,
                 'pic_email' => $vendor->vendor->pic_email,
                 'status' => $vendor->status,
                 'priority' => null,
+                'offer_id' => $vendor->purchaseOrderOffers()->where('vendor_id', $vendor->vendor_id)->first()->id ?? null,
                 'is_submit_offer' => $vendor->purchaseOrderOffers()->where('vendor_id', $vendor->vendor_id)->exists(),  // Set to true if the vendor has submitted an offer
             ];
         });
@@ -705,6 +706,71 @@ class PurchaseOrderController extends Controller
             ], 500);
         }
     }
+
+    public function fetchVendorOfferDetails($offerId)
+    {
+        try {
+            // Retrieve the PurchaseOrderOffer by ID with all related data
+            $offer = PurchaseOrderOffer::with([
+                'purchaseOrderItems', // Assuming this is the relationship name
+                'purchaseOrderCosts', // Assuming this is the relationship name
+                'purchaseOrderPayments', // Assuming this is the relationship name
+                'purchaseOrderPayments.paymentRecords' // Nested relationship for payment records
+            ])->findOrFail($offerId);
+
+            // Prepare the response data with the necessary fields
+            $response = [
+                'offer_id' => $offer->id,
+                'purchase_order_id' => $offer->purchase_order_id,
+                'vendor_id' => $offer->vendor_id,
+                'delivery_address' => $offer->delivery_address,
+                'delivery_cost' => $offer->delivery_cost,
+                'offering_document' => $offer->offering_document,
+                'items' => $offer->purchaseOrderItems->map(function ($item) {
+                    return [
+                        'po_item_id' => $item->po_item_id,
+                        'offered_price' => $item->offered_price,
+                    ];
+                }),
+                'costs' => $offer->purchaseOrderCosts->map(function ($cost) {
+                    return [
+                        'cost_name' => $cost->cost_name,
+                        'cost_value' => $cost->cost_value,
+                    ];
+                }),
+                'payments' => $offer->purchaseOrderPayments->map(function ($payment) {
+                    return [
+                        'payment_method' => $payment->payment_method,
+                        'amount' => $payment->amount,
+                        'down_payment_amount' => $payment->down_payment_amount,
+                        'payment_records' => $payment->paymentRecords->map(function ($record) {
+                            return [
+                                'amount_paid' => $record->amount_paid,
+                                'remarks' => $record->remarks,
+                            ];
+                        }),
+                    ];
+                }),
+            ];
+
+            return response()->json([
+                'message' => 'Vendor offer details fetched successfully.',
+                'offer_details' => $response,
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'message' => 'Vendor offer not found.',
+            ], 404);
+        } catch (Exception $e) {
+            Log::error($e->getMessage(), ['trace' => $e->getTrace()]);
+
+            return response()->json([
+                'message' => 'An error occurred while fetching the vendor offer details.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
 
      
      

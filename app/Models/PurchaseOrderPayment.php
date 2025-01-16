@@ -16,4 +16,9 @@ class PurchaseOrderPayment extends Model
         return $this->belongsTo(PurchaseOrderOffer::class);
     }
 
+    public function paymentRecords()
+    {
+        return $this->hasMany(PurchaseOrderPaymentRecord::class);
+    }
+
 }
