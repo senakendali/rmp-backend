@@ -717,13 +717,12 @@ class PurchaseOrderController extends Controller
         try {
             // Retrieve the PurchaseOrderOffer by ID with all related data
             $offer = PurchaseOrderOffer::with([
-                'purchaseOrderItems', // Assuming this is the relationship name
-                'purchaseOrderCosts', // Assuming this is the relationship name
-                'purchaseOrderPayments', // Assuming this is the relationship name
-                'purchaseOrderPayments.paymentRecords' // Nested relationship for payment records
+                'purchaseOrderOfferItems.purchaseOrderItem.purchaseRequestItem.goods', // Use correct relationships
+                'purchaseOrderCosts',
+                'purchaseOrderPayments.paymentRecords',
             ])->findOrFail($offerId);
 
-            // Prepare the response data with the necessary fields
+            // Prepare the response data
             $response = [
                 'offer_id' => $offer->id,
                 'purchase_order_id' => $offer->purchase_order_id,
@@ -731,9 +730,18 @@ class PurchaseOrderController extends Controller
                 'delivery_address' => $offer->delivery_address,
                 'delivery_cost' => $offer->delivery_cost,
                 'offering_document' => $offer->offering_document,
-                'items' => $offer->purchaseOrderItems->map(function ($item) {
+                'items' => $offer->purchaseOrderOfferItems->map(function ($item) {
+                    $purchaseOrderItem = $item->purchaseOrderItem; // Correctly load related PurchaseOrderItem
+                    $goods = $purchaseOrderItem?->goods; // Safely access Goods data
+
                     return [
-                        'po_item_id' => $item->po_item_id,
+                        'purchase_request_id' => $purchaseOrderItem?->purchaseRequestItem->id ?? null,
+                        'po_item_id' => $purchaseOrderItem?->id ?? null, // Use correct column
+                        'goods_id' => $goods?->id ?? null, // Goods data may be null
+                        'goods_name' => $goods?->name ?? null,
+                        'quantity' => $purchaseOrderItem?->quantity,
+                        'measurement_id' => $purchaseOrderItem?->measurement_id ?? null,
+                        'measurement' => $purchaseOrderItem?->measurementUnit->name ?? null,
                         'offered_price' => $item->offered_price,
                     ];
                 }),
@@ -775,6 +783,8 @@ class PurchaseOrderController extends Controller
             ], 500);
         }
     }
+
+
 
 
      

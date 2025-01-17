@@ -15,8 +15,10 @@ class PurchaseOrderOfferItems extends Model
         return $this->belongsTo(PurchaseOrderOffer::class);
     }
 
+    
+
     public function purchaseOrderItem()
     {
-        return $this->belongsTo(PurchaseOrderItem::class);
+        return $this->belongsTo(PurchaseOrderItem::class, 'po_item_id');
     }
 }

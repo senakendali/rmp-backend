@@ -25,6 +25,11 @@ class PurchaseOrderOffer extends Model
         return $this->hasMany(PurchaseOrderOfferItems::class, 'purchase_order_offer_id');
     }
 
+    public function purchaseOrderOfferItems()
+    {
+        return $this->hasMany(PurchaseOrderOfferItems::class, 'purchase_order_offer_id');
+    }
+
     public function purchaseOrderCosts()
     {
         return $this->hasMany(PurchaseOrderOfferCosts::class, 'purchase_order_offer_id');

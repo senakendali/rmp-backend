@@ -14,4 +14,6 @@ class Goods extends Model
     {
         return $this->belongsTo(GoodsCategories::class, 'goods_category_id');
     }
+
+    
 }
