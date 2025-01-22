@@ -516,99 +516,101 @@ class PurchaseOrderController extends Controller
      */
      
      public function show($id)
-     {
-         try {
-             // Load the purchase order with related items, goods, categories, and measurement units
-             $purchaseOrder = PurchaseOrder::with([
-                 'items.goods.category',  // Load goods and their category
-                 'category',              // Load the category of the purchase order
-                 'items.measurementUnit',  // Load the measurement unit for items
-                 'items.PurchaseRequestItem',  // Load the purchase request for items
-                 'items.department',  // Load the department for items
-             ])->findOrFail($id);  // Automatically returns 404 if not found
-     
-             // Transform the response to include only the necessary details
-             $purchaseOrderData = $this->transformPurchaseOrder($purchaseOrder);
-     
-             return response()->json($purchaseOrderData);
-         } catch (ModelNotFoundException $e) {
-             // Catch if the PurchaseOrder is not found and return a 404 error
-             \Log::error('PurchaseOrder not found: ' . $e->getMessage());
-             return response()->json(['message' => 'Purchase order not found.'], 404);
-         } catch (\Exception $e) {
-             // Catch any other errors and log them for debugging
-             \Log::error('Error fetching purchase order data: ' . $e->getMessage());
-             
-             // Optionally, you can log the entire exception to get more context
-             \Log::error('Exception details: ' . $e);
-     
-             return response()->json([
-                 'message' => 'An error occurred while processing your request.',
-                 'error' => $e->getMessage(),
-             ], 500);
-         }
-     }
-     
-     /**
-      * Transform the PurchaseOrder data into a simplified format.
-      */
-     private function transformPurchaseOrder($purchaseOrder)
-     {
-         return [
-             'id' => $purchaseOrder->id,
-             'po_date' => $purchaseOrder->created_at,
-             'po_number' => $purchaseOrder->purchase_order_number,
-             'po_type' => $purchaseOrder->po_type,
-             'goods_category_id' => $purchaseOrder->goods_category_id,
-             'category_name' => $purchaseOrder->category->name ?? null, // Safely access category name
-             'po_name' => $purchaseOrder->po_name,
-             'note' => $purchaseOrder->note,
-             'items' => $this->transformItems($purchaseOrder->items), // Transform items data
-             'vendors' => $this->transformVendors($purchaseOrder->id, $purchaseOrder->participants), // Transform vendor data
-         ];
-     }
-     
-     /**
-      * Transform each item in the purchase order into the desired format.
-      */
-     private function transformItems($items)
-     {
-         return $items->map(function ($item) {
-             return [
-                 'id' => $item->id,
-                 'purchase_request_id' => $item->PurchaseRequestItem->purchase_request_id,
-                 'goods_id' => $item->goods_id,
-                 'goods_name' => $item->goods->name ?? null,  // Safely access goods name
-                 'goods_category_name' => $item->goods->category->name ?? null, // Safely access category name
-                 'department_name' => $item->department->name ?? null, // Safely access department name
-                 'quantity' => $item->quantity ?? null,  // Quantity
-                 'measurement_id' => $item->measurementUnit->id ?? null,  // Safely access measurement unit ID
-                 'measurement' => $item->measurementUnit->name ?? null,  // Safely access measurement unit name
-             ];
-         });
-     }
+    {
+        try {
+            // Load the purchase order with related items, goods, categories, and measurement units
+            $purchaseOrder = PurchaseOrder::with([
+                'items.goods.category',  // Load goods and their category
+                'category',              // Load the category of the purchase order
+                'items.measurementUnit',  // Load the measurement unit for items
+                'items.PurchaseRequestItem',  // Load the purchase request for items
+                'items.department',  // Load the department for items
+                'participants.vendor',  // Load participants and their vendors
+            ])->findOrFail($id);  // Automatically returns 404 if not found
 
-     private function transformVendors($po_id, $vendors)
-     {
-         return $vendors->map(function ($vendor) use ($po_id) {
-             // Debugging to confirm structure
-             \Log::info('Vendor: ', $vendor->toArray());
-     
-             return [
-                 'vendor_id' => $vendor->id, // Ensure this references `vendors.id`
-                 'name' => $vendor->name, // Verify correct fields exist
-                 'pic_name' => $vendor->pic_name,
-                 'pic_phone' => $vendor->pic_phone,
-                 'pic_email' => $vendor->pic_email,
-                 'status' => $vendor->status,
-                 'priority' => null,
-                 'offer_id' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->first()->id ?? null,
-                 'sql' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->toSql(),
-                 'bindings' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->getBindings(),
-                 'is_submit_offer' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->exists(),
-             ];
-         });
-     }
+            // Transform the response to include only the necessary details
+            $purchaseOrderData = $this->transformPurchaseOrder($purchaseOrder);
+
+            return response()->json($purchaseOrderData);
+        } catch (ModelNotFoundException $e) {
+            // Catch if the PurchaseOrder is not found and return a 404 error
+            \Log::error('PurchaseOrder not found: ' . $e->getMessage());
+            return response()->json(['message' => 'Purchase order not found.'], 404);
+        } catch (\Exception $e) {
+            // Catch any other errors and log them for debugging
+            \Log::error('Error fetching purchase order data: ' . $e->getMessage());
+            
+            // Optionally, you can log the entire exception to get more context
+            \Log::error('Exception details: ' . $e);
+
+            return response()->json([
+                'message' => 'An error occurred while processing your request.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Transform the PurchaseOrder data into a simplified format.
+     */
+    private function transformPurchaseOrder($purchaseOrder)
+    {
+        return [
+            'id' => $purchaseOrder->id,
+            'po_date' => $purchaseOrder->created_at,
+            'po_number' => $purchaseOrder->purchase_order_number,
+            'po_type' => $purchaseOrder->po_type,
+            'goods_category_id' => $purchaseOrder->goods_category_id,
+            'category_name' => $purchaseOrder->category->name ?? null, // Safely access category name
+            'po_name' => $purchaseOrder->po_name,
+            'note' => $purchaseOrder->note,
+            'items' => $this->transformItems($purchaseOrder->items), // Transform items data
+            'vendors' => $this->transformVendors($purchaseOrder->participants), // Transform vendor data
+        ];
+    }
+
+    /**
+     * Transform each item in the purchase order into the desired format.
+     */
+    private function transformItems($items)
+    {
+        return $items->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'purchase_request_id' => $item->PurchaseRequestItem->purchase_request_id,
+                'goods_id' => $item->goods_id,
+                'goods_name' => $item->goods->name ?? null,  // Safely access goods name
+                'goods_category_name' => $item->goods->category->name ?? null, // Safely access category name
+                'department_name' => $item->department->name ?? null, // Safely access department name
+                'quantity' => $item->quantity ?? null,  // Quantity
+                'measurement_id' => $item->measurementUnit->id ?? null,  // Safely access measurement unit ID
+                'measurement' => $item->measurementUnit->name ?? null,  // Safely access measurement unit name
+            ];
+        });
+    }
+
+    /**
+     * Transform the vendors associated with the purchase order via participants.
+     */
+    private function transformVendors($participants)
+    {
+        return $participants->map(function ($participant) {
+            $vendor = $participant->vendor; // The associated Vendor
+
+            return [
+                'vendor_id' => $vendor->id, // Vendor ID
+                'name' => $vendor->name,
+                'pic_name' => $vendor->pic_name,
+                'pic_phone' => $vendor->pic_phone,
+                'pic_email' => $vendor->pic_email,
+                'status' => $participant->status, // Assuming `status` belongs to Participant
+                'priority' => null, // Example value, adjust as needed
+                'offer_id' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $participant->purchase_order_id)->first()->id ?? null,
+                'is_submit_offer' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $participant->purchase_order_id)->exists(),  // Set to true if the vendor has submitted an offer
+            ];
+        });
+    }
+
      
 
 
