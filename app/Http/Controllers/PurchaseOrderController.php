@@ -714,6 +714,125 @@ class PurchaseOrderController extends Controller
         }
     }
 
+    public function updateVendorOffer(Request $request, $offerId)
+    {
+        try {
+            // Validate the incoming request
+            $validated = $request->validate([
+                'purchase_order_id' => 'required|exists:purchase_orders,id',
+                'vendor_id' => 'required|exists:vendors,id',
+                'payment_method' => 'nullable|in:Bayar Sebagian,Bayar Lunas',
+                'delivery_address' => 'nullable|in:Factory,Head Office,Lab Jakarta',
+                'delivery_cost' => 'nullable|numeric',
+                'offering_document' => 'nullable|file|mimes:pdf,doc,docx',
+                'items' => 'required|array',
+                'items.*.po_item_id' => 'required|exists:purchase_order_items,id',
+                'items.*.offered_price' => 'required|numeric',
+                'costs' => 'nullable|array',
+                'costs.*.cost_name' => 'required_with:costs|string',
+                'costs.*.cost_value' => 'required_with:costs|numeric',
+                'payment' => 'required|array',
+                'payment.amount' => 'required|numeric',
+                'payment.down_payment_amount' => 'required|numeric',
+                'payment.records' => 'required|array',
+                'payment.records.*.amount_paid' => 'required|numeric',
+                'payment.records.*.remarks' => 'nullable|string',
+            ]);
+
+            // Handle offering document upload if provided
+            $offeringDocumentPath = null;
+            if ($request->hasFile('offering_document')) {
+                $offeringDocumentPath = $request->file('offering_document')->store('public/offering_documents');
+            }
+
+            // Find the existing purchase order offer
+            $offer = PurchaseOrderOffer::findOrFail($offerId);
+
+            // Update offer details
+            $offer->update([
+                'purchase_order_id' => $validated['purchase_order_id'],
+                'vendor_id' => $validated['vendor_id'],
+                'delivery_address' => $validated['delivery_address'],
+                'delivery_cost' => $validated['delivery_cost'],
+                'offering_document' => $offeringDocumentPath ?? $offer->offering_document, // Keep existing if no new document
+            ]);
+
+            // Update offer items (delete existing ones and create new ones)
+            $offer->items()->delete();  // Delete previous items
+            foreach ($validated['items'] as $item) {
+                PurchaseOrderOfferItems::create([
+                    'purchase_order_offer_id' => $offer->id,
+                    'po_item_id' => $item['po_item_id'],
+                    'offered_price' => $item['offered_price'],
+                ]);
+            }
+
+            // Update offer costs (delete existing ones and create new ones)
+            $offer->costs()->delete();  // Delete previous costs
+            if (!empty($validated['costs'])) {
+                foreach ($validated['costs'] as $cost) {
+                    PurchaseOrderOfferCosts::create([
+                        'purchase_order_offer_id' => $offer->id,
+                        'cost_name' => $cost['cost_name'],
+                        'cost_value' => $cost['cost_value'],
+                    ]);
+                }
+            }
+
+            // Update payment details
+            $payment = $validated['payment'];
+            $purchaseOrderPayment = $offer->payment()->first(); // Get the existing payment record (if any)
+            if ($purchaseOrderPayment) {
+                $purchaseOrderPayment->update([
+                    'payment_method' => $validated['payment_method'] === 'Bayar Lunas' ? 'pay_in_full' : 'pay_in_part',
+                    'amount' => $payment['amount'],
+                    'down_payment_amount' => $payment['down_payment_amount'],
+                ]);
+            } else {
+                // If no payment record exists, create a new one
+                $purchaseOrderPayment = PurchaseOrderPayment::create([
+                    'purchase_order_offer_id' => $offer->id,
+                    'payment_method' => $validated['payment_method'] === 'Bayar Lunas' ? 'pay_in_full' : 'pay_in_part',
+                    'amount' => $payment['amount'],
+                    'down_payment_amount' => $payment['down_payment_amount'],
+                ]);
+            }
+
+            // Update or create payment records
+            foreach ($payment['records'] as $record) {
+                // Check if the record already exists, if so, update it; otherwise, create a new one
+                PurchaseOrderPaymentRecord::updateOrCreate(
+                    [
+                        'purchase_order_payment_id' => $purchaseOrderPayment->id,
+                        'amount_paid' => $record['amount_paid'],
+                    ],
+                    [
+                        'remarks' => $record['remarks'] ?? null,
+                    ]
+                );
+            }
+
+            return response()->json([
+                'message' => 'Purchase order offer successfully updated.',
+                'offer_id' => $offer->id,
+            ], 200);
+
+        } catch (ValidationException $e) {
+            return response()->json([
+                'message' => 'Validation failed.',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (Exception $e) {
+            Log::error($e->getMessage(), ['trace' => $e->getTrace()]);
+
+            return response()->json([
+                'message' => 'An error occurred while updating the purchase order offer.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+
     /**
      * Fetch vendor offer details
      * 

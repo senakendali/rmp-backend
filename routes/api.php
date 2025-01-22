@@ -65,6 +65,7 @@ Route::prefix('purchase-order')->group(function () {
     
     Route::get('/fetch-vendor-offer-details/{offer_id}', [PurchaseOrderController::class, 'fetchVendorOfferDetails']);
     Route::middleware('auth:sanctum')->post('submit-vendor-offers', [PurchaseOrderController::class, 'submitVendorOffers']); 
+    Route::middleware('auth:sanctum')->put('update-vendor-offers', [PurchaseOrderController::class, 'updateVendorOffer']); 
     Route::get('{id}', [PurchaseOrderController::class, 'show']);
 });
 
