@@ -601,6 +601,8 @@ class PurchaseOrderController extends Controller
                 'status' => $vendor->status,
                 'priority' => null,
                 'offer_id' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->first()->id ?? null,
+                'sql' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->toSql(),
+                'bindings' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->getBindings(),
                 'is_submit_offer' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->exists(),  // Set to true if the vendor has submitted an offer
             ];
         });
