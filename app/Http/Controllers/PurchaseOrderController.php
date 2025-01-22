@@ -600,10 +600,8 @@ class PurchaseOrderController extends Controller
                 'pic_email' => $vendor->vendor->pic_email,
                 'status' => $vendor->status,
                 'priority' => null,
-                'offer_id' => $vendor->purchaseOrderOffers()->where('vendor_id', $vendor->vendor_id)->where('purchase_order_id', $po_id)->first()->id ?? null,
-                'sql' => $vendor->purchaseOrderOffers()->where('vendor_id', $vendor->vendor_id)->where('purchase_order_id', $po_id)->toSql(),
-                'bindings' => $vendor->purchaseOrderOffers()->where('vendor_id', $vendor->vendor_id)->where('purchase_order_id', $po_id)->getBindings(),
-                'is_submit_offer' => $vendor->purchaseOrderOffers()->where('vendor_id', $vendor->vendor_id)->where('purchase_order_id', $po_id)->exists(),  // Set to true if the vendor has submitted an offer
+                'offer_id' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->first()->id ?? null,
+                'is_submit_offer' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->exists(),  // Set to true if the vendor has submitted an offer
             ];
         });
     }
