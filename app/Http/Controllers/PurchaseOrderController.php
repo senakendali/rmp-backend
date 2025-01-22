@@ -564,7 +564,7 @@ class PurchaseOrderController extends Controller
              'po_name' => $purchaseOrder->po_name,
              'note' => $purchaseOrder->note,
              'items' => $this->transformItems($purchaseOrder->items), // Transform items data
-             'vendors' => $this->transformVendors($purchaseOrder->participants), // Transform vendor data
+             'vendors' => $this->transformVendors($purchaseOrder->id, $purchaseOrder->participants), // Transform vendor data
          ];
      }
      
@@ -588,9 +588,9 @@ class PurchaseOrderController extends Controller
          });
      }
 
-     private function transformVendors($vendors)
+     private function transformVendors($po_id, $vendors)
     {
-        return $vendors->map(function ($vendor) {
+        return $vendors->map(function ($vendor) use ($po_id) {
            
             return [
                 'vendor_id' => $vendor->vendor_id,
@@ -600,8 +600,8 @@ class PurchaseOrderController extends Controller
                 'pic_email' => $vendor->vendor->pic_email,
                 'status' => $vendor->status,
                 'priority' => null,
-                'offer_id' => $vendor->purchaseOrderOffers()->where('vendor_id', $vendor->vendor_id)->first()->id ?? null,
-                'is_submit_offer' => $vendor->purchaseOrderOffers()->where('vendor_id', $vendor->vendor_id)->exists(),  // Set to true if the vendor has submitted an offer
+                'offer_id' => $vendor->purchaseOrderOffers()->where('vendor_id', $vendor->vendor_id)->where('purchase_order_id', $po_id)->first()->id ?? null,
+                'is_submit_offer' => $vendor->purchaseOrderOffers()->where('vendor_id', $vendor->vendor_id)->where('purchase_order_id', $po_id)->exists(),  // Set to true if the vendor has submitted an offer
             ];
         });
     }
