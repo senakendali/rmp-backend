@@ -589,24 +589,27 @@ class PurchaseOrderController extends Controller
      }
 
      private function transformVendors($po_id, $vendors)
-    {
-        return $vendors->map(function ($vendor) use ($po_id) {
-           
-            return [
-                'vendor_id' => $vendor->vendor_id,
-                'name' => $vendor->vendor->name,
-                'pic_name' => $vendor->vendor->pic_name,
-                'pic_phone' => $vendor->vendor->pic_phone,
-                'pic_email' => $vendor->vendor->pic_email,
-                'status' => $vendor->status,
-                'priority' => null,
-                'offer_id' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->first()->id ?? null,
-                'sql' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->toSql(),
-                'bindings' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->getBindings(),
-                'is_submit_offer' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->exists(),  // Set to true if the vendor has submitted an offer
-            ];
-        });
-    }
+     {
+         return $vendors->map(function ($vendor) use ($po_id) {
+             // Debugging to confirm structure
+             \Log::info('Vendor: ', $vendor->toArray());
+     
+             return [
+                 'vendor_id' => $vendor->id, // Ensure this references `vendors.id`
+                 'name' => $vendor->name, // Verify correct fields exist
+                 'pic_name' => $vendor->pic_name,
+                 'pic_phone' => $vendor->pic_phone,
+                 'pic_email' => $vendor->pic_email,
+                 'status' => $vendor->status,
+                 'priority' => null,
+                 'offer_id' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->first()->id ?? null,
+                 'sql' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->toSql(),
+                 'bindings' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->getBindings(),
+                 'is_submit_offer' => $vendor->purchaseOrderOffers()->where('purchase_order_id', $po_id)->exists(),
+             ];
+         });
+     }
+     
 
 
     /**
