@@ -716,6 +716,8 @@ class PurchaseOrderController extends Controller
 
     public function updateVendorOffer(Request $request, $offerId)
     {
+        DB::beginTransaction(); // Start the database transaction
+
         try {
             // Validate the incoming request
             $validated = $request->validate([
@@ -754,34 +756,42 @@ class PurchaseOrderController extends Controller
                 'vendor_id' => $validated['vendor_id'],
                 'delivery_address' => $validated['delivery_address'],
                 'delivery_cost' => $validated['delivery_cost'],
-                'offering_document' => $offeringDocumentPath ?? $offer->offering_document, // Keep existing if no new document
+                'offering_document' => $offeringDocumentPath ?? $offer->offering_document,
             ]);
 
-            // Update offer items (delete existing ones and create new ones)
-            $offer->items()->delete();  // Delete previous items
+            // Update or create offer items
             foreach ($validated['items'] as $item) {
-                PurchaseOrderOfferItems::create([
-                    'purchase_order_offer_id' => $offer->id,
-                    'po_item_id' => $item['po_item_id'],
-                    'offered_price' => $item['offered_price'],
-                ]);
+                PurchaseOrderOfferItems::updateOrCreate(
+                    [
+                        'purchase_order_offer_id' => $offer->id,
+                        'po_item_id' => $item['po_item_id'], // Using po_item_id as unique identifier
+                    ],
+                    [
+                        'offered_price' => $item['offered_price'],
+                    ]
+                );
             }
 
-            // Update offer costs (delete existing ones and create new ones)
-            $offer->costs()->delete();  // Delete previous costs
+            // Update or create offer costs
             if (!empty($validated['costs'])) {
                 foreach ($validated['costs'] as $cost) {
-                    PurchaseOrderOfferCosts::create([
-                        'purchase_order_offer_id' => $offer->id,
-                        'cost_name' => $cost['cost_name'],
-                        'cost_value' => $cost['cost_value'],
-                    ]);
+                    PurchaseOrderOfferCosts::updateOrCreate(
+                        [
+                            'purchase_order_offer_id' => $offer->id,
+                            'cost_name' => $cost['cost_name'], // Using cost_name as unique identifier (or can be any unique identifier)
+                        ],
+                        [
+                            'cost_value' => $cost['cost_value'],
+                        ]
+                    );
                 }
             }
 
-            // Update payment details
+            // Update or create payment details
             $payment = $validated['payment'];
-            $purchaseOrderPayment = $offer->payment()->first(); // Get the existing payment record (if any)
+            $purchaseOrderPayment = $offer->purchaseOrderPayments()->first();
+
+            
             if ($purchaseOrderPayment) {
                 $purchaseOrderPayment->update([
                     'payment_method' => $validated['payment_method'] === 'Bayar Lunas' ? 'pay_in_full' : 'pay_in_part',
@@ -789,7 +799,6 @@ class PurchaseOrderController extends Controller
                     'down_payment_amount' => $payment['down_payment_amount'],
                 ]);
             } else {
-                // If no payment record exists, create a new one
                 $purchaseOrderPayment = PurchaseOrderPayment::create([
                     'purchase_order_offer_id' => $offer->id,
                     'payment_method' => $validated['payment_method'] === 'Bayar Lunas' ? 'pay_in_full' : 'pay_in_part',
@@ -800,11 +809,10 @@ class PurchaseOrderController extends Controller
 
             // Update or create payment records
             foreach ($payment['records'] as $record) {
-                // Check if the record already exists, if so, update it; otherwise, create a new one
                 PurchaseOrderPaymentRecord::updateOrCreate(
                     [
                         'purchase_order_payment_id' => $purchaseOrderPayment->id,
-                        'amount_paid' => $record['amount_paid'],
+                        'amount_paid' => $record['amount_paid'], // Use the unique identifier (amount_paid)
                     ],
                     [
                         'remarks' => $record['remarks'] ?? null,
@@ -812,17 +820,21 @@ class PurchaseOrderController extends Controller
                 );
             }
 
+            DB::commit(); // Commit the transaction
+
             return response()->json([
                 'message' => 'Purchase order offer successfully updated.',
                 'offer_id' => $offer->id,
             ], 200);
 
         } catch (ValidationException $e) {
+            DB::rollBack(); // Rollback the transaction on validation failure
             return response()->json([
                 'message' => 'Validation failed.',
                 'errors' => $e->errors(),
             ], 422);
         } catch (Exception $e) {
+            DB::rollBack(); // Rollback the transaction on any other exception
             Log::error($e->getMessage(), ['trace' => $e->getTrace()]);
 
             return response()->json([
@@ -830,7 +842,9 @@ class PurchaseOrderController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
-    }
+}
+
+
 
 
     /**
@@ -916,13 +930,6 @@ class PurchaseOrderController extends Controller
             ], 500);
         }
     }
-
-
-
-
-     
-     
-    
 
     /**
      * Update the specified resource in storage.
