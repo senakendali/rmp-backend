@@ -853,6 +853,13 @@ class PurchaseOrderController extends Controller
                 'offer_id' => $offer->id,
                 'purchase_order_id' => $offer->purchase_order_id,
                 'vendor_id' => $offer->vendor_id,
+                'vendor_detail' => array(
+                    'vendor_name' => $offer->vendor->name,
+                    'vendor_address' => $offer->vendor->address,
+                    'vendor_pic_name' => $offer->vendor->pic_name,
+                    'vendor_pic_phone' => $offer->vendor->pic_phone,
+                    'vendor_pic_email' => $offer->vendor->pic_email,
+                ),
                 'delivery_address' => $offer->delivery_address,
                 'delivery_cost' => $offer->delivery_cost,
                 'offering_document' => $offer->offering_document,
