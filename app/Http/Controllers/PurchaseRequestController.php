@@ -137,6 +137,7 @@ class PurchaseRequestController extends Controller
                 'items' => $purchaseRequest->items->map(function ($item) {
                     return [
                         'id' => $item->id,
+                        'goods_id' => $item->goods->id,
                         'goods_name' => $item->goods->name ?? null, // Goods name
                         'goods_category_name' => $item->goods->category->name ?? null, // Category name
                         'quantity' => $item->quantity ?? null, // Quantity
@@ -293,6 +294,7 @@ class PurchaseRequestController extends Controller
                 'update_status_reason' => 'nullable|string|max:1000', // Optional by default
                 'update_status_by' => 'nullable|string|max:255', 
             ]);
+            
 
             // Ensure reason is provided for revised or rejected statuses
             if (in_array($validated['status'], ['revised', 'rejected']) && empty($validated['update_status_reason'])) {
