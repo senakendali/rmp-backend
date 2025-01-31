@@ -11,6 +11,7 @@ use App\Http\Controllers\RolePermissionController;
 use App\Http\Controllers\MenuManagementController;
 use App\Http\Controllers\MeasurementUnitController;
 use App\Http\Controllers\PurchaseOrderController;
+use App\Http\Controllers\ProcurementLogController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -103,6 +104,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
    
 });
+
+//Measurement Unit
+Route::apiResource('procurement-logs', ProcurementLogController::class);
 
 
 
