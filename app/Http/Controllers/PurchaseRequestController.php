@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PurchaseRequest;
 use App\Models\PurchaseRequestItem;
+use App\Models\ProcurementLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -85,6 +86,20 @@ class PurchaseRequestController extends Controller
                     'measurement_id' => $item['measurement_id'], // Add new measurement_id
                 ]);
             }
+
+            ProcurementLog::create([
+                'purchase_request_id' => $purchaseRequest->id,
+                'log_name' => 'Purchase Request Created',
+                'log_description' => 'Permintaan Dibuat',
+                //'user_id' => Auth::user()->id,
+            ]);
+
+            ProcurementLog::create([
+                'purchase_request_id' => $purchaseRequest->id,
+                'log_name' => 'Waiting for Approval',
+                'log_description' => 'Menunggu Persetujuan',
+                //'user_id' => Auth::user()->id,
+            ]);
 
             DB::commit();
 
@@ -261,6 +276,13 @@ class PurchaseRequestController extends Controller
                 'followed_by' => 'System',
             ]);
 
+            ProcurementLog::create([
+                'purchase_request_id' => $purchaseRequest->id,
+                'log_name' => 'Follow Up Purchase Request',
+                'log_description' => 'Permintaan Di Follow Up',
+                //'user_id' => Auth::user()->id,
+            ]);
+
             // Commit the transaction
             DB::commit();
 
@@ -319,6 +341,21 @@ class PurchaseRequestController extends Controller
             }
 
             $purchaseRequest->update($updateData);
+
+            //approved,revised,rejected',
+            if ($validated['status'] === 'approved') {
+                $log_description = 'Permintaan Disetujui';
+            }else if($validated['revised'] === 'revised'){
+                $log_description = 'Permintaan Direvisi';
+            }else{
+                $log_description = 'Permintaan Ditolak';
+            }
+            ProcurementLog::create([
+                'purchase_request_id' => $purchaseRequest->id,
+                'log_name' => $validated['status'].' Purchase Request',
+                'log_description' => $log_description,
+                //'user_id' => Auth::user()->id,
+            ]);
 
             DB::commit();
 
