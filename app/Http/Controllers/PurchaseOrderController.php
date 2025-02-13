@@ -19,11 +19,13 @@ use App\Models\PurchaseOrderOfferItems;
 use App\Models\PurchaseOrderOfferCosts; 
 use App\Models\PurchaseOrderPayment;
 use App\Models\PurchaseOrderPaymentRecord;
+use App\Models\PurchaseOrderAdjustmentNote;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+
 
 class PurchaseOrderController extends Controller
 {
@@ -926,6 +928,62 @@ class PurchaseOrderController extends Controller
 
             return response()->json([
                 'message' => 'An error occurred while fetching the vendor offer details.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    //ENUM('Belum Diproses', 'Menunggu Persetujuan', 'Disetujui', 'Ditolak', 'Direvisi', 'PO Rilis', 'Pengiriman', 'PO Selesai')
+    public function purchaseOrderVerification(Request $request)
+    {
+       
+           // Validate the request
+        $validator = Validator::make($request->all(), [
+            'purchase_order_id' => 'required|exists:purchase_orders,id',
+            'po_status' => 'required|in:Disetujui,Ditolak,Direvisi',
+            'note' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Start a database transaction
+        DB::beginTransaction();
+
+        try {
+            // Update the PurchaseOrder status
+            $purchaseOrder = PurchaseOrder::findOrFail($request->purchase_order_id);
+            $purchaseOrder->po_status = $request->po_status;
+
+            if($request->po_status == 'Disetujui'){
+                $purchaseOrder->user_confirmed = Auth::id();
+                $purchaseOrder->confirmed_at = now();
+            }
+
+            $purchaseOrder->save();
+
+            // Insert a record into PurchaseOrderAdjustmentNotes
+            PurchaseOrderAdjustmentNote::create([
+                'purchase_order_id' => $request->purchase_order_id,
+                'user_id' => Auth::id(),
+                'note' => $request->note,
+            ]);
+
+            // Commit the transaction
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Purchase order verification successful.',
+                'data' => $purchaseOrder,
+            ], 200);
+
+        } catch (\Exception $e) {
+            // Rollback the transaction on error
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'An error occurred during purchase order verification.',
                 'error' => $e->getMessage(),
             ], 500);
         }

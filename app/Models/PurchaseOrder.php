@@ -40,4 +40,9 @@ class PurchaseOrder extends Model
     {
         return $this->hasMany(PurchaseOrderParticipant::class, 'purchase_order_id');
     }
+
+    public function purchaseOrderAdjusmentNotes()
+    {
+        return $this->hasMany(PurchaseOrderAdjustmentNote::class, 'purchase_order_id');
+    }
 }
