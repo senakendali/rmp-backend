@@ -24,6 +24,7 @@ use App\Models\PurchaseOrderAdjustmentNote;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 
@@ -987,6 +988,37 @@ class PurchaseOrderController extends Controller
                 'error' => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function releasePurchaseOrder(Request $request, $id)
+    {
+        $request->validate([
+            'document' => 'required|file|mimes:pdf,jpeg,jpg,png|max:2048',
+        ]);
+
+        $purchaseOrder = PurchaseOrder::findOrFail($id);
+        
+        // Pastikan folder penyimpanan ada
+        $directory = 'purchase_order';
+        if (!Storage::disk('public')->exists($directory)) {
+            Storage::disk('public')->makeDirectory($directory);
+        }
+
+        // Simpan file ke storage/purchase_order
+        $path = $request->file('document')->store($directory, 'public');
+        
+        // Update status PO dan simpan path dokumen
+        $purchaseOrder->update([
+            'po_status' => 'PO Rilis',
+            'signed_po_document' => $path,
+            'po_release_by' => Auth::id(),
+            'po_release_date' => now()
+        ]);
+
+        return response()->json([
+            'message' => 'Purchase Order released successfully',
+            'data' => $purchaseOrder
+        ]);
     }
 
     /**
