@@ -44,7 +44,7 @@ Route::apiResource('purchase-requests', PurchaseRequestController::class);
 Route::prefix('purchase-requests')->group(function () {
     Route::get('/history/{itemId}/{departmentId}', [PurchaseRequestController::class, 'getPurchaseHistory']);
     Route::put('/followUp/{id}', [PurchaseRequestController::class, 'followUp']);
-    Route::put('/updateStatus/{id}', [PurchaseRequestController::class, 'updateStatus']);
+    Route::middleware('auth:sanctum')->put('/updateStatus/{id}', [PurchaseRequestController::class, 'updateStatus']);
 });
 
 //Purchase Order

@@ -7,6 +7,7 @@ use App\Models\PurchaseRequestItem;
 use App\Models\ProcurementLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class PurchaseRequestController extends Controller
 {
@@ -328,7 +329,7 @@ class PurchaseRequestController extends Controller
 
             $updateData = [
                 'status' => $validated['status'],
-                'update_status_by' => "System",
+                'update_status_by' => Auth::user()->name,
             ];
 
             if (!empty($validated['update_status_reason'])) {
@@ -345,7 +346,7 @@ class PurchaseRequestController extends Controller
             //approved,revised,rejected',
             if ($validated['status'] === 'approved') {
                 $log_description = 'Permintaan Disetujui';
-            }else if($validated['revised'] === 'revised'){
+            }else if($validated['status'] === 'revised'){
                 $log_description = 'Permintaan Direvisi';
             }else{
                 $log_description = 'Permintaan Ditolak';
