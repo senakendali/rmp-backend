@@ -990,6 +990,54 @@ class PurchaseOrderController extends Controller
         }
     }
 
+    public function replyAdjustmentNote(Request $request, $id)
+    {
+           // Validate the request
+        $validator = Validator::make($request->all(), [
+            'note' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Start a database transaction
+        DB::beginTransaction();
+
+        try {
+            // Insert a record into PurchaseOrderAdjustmentNotes
+            PurchaseOrderAdjustmentNote::create([
+                'purchase_order_id' => $id,
+                'user_id' => Auth::id(),
+                'note' => $request->note,
+            ]);
+
+            // Commit the transaction
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Purchase order verification successful.',
+                'data' => PurchaseOrderAdjustmentNote::where('purchase_order_id', $id)->get(),
+            ], 200);
+
+        } catch (\Exception $e) {
+            // Rollback the transaction on error
+            DB::rollBack();
+
+            return response()->json([
+                'message' => 'An error occurred during purchase order verification.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function getAdjustmentNotes($id)
+    {
+        return response()->json([
+            'data' => PurchaseOrderAdjustmentNote::where('purchase_order_id', $id)->get(),
+        ], 200);
+    }
+
     public function releasePurchaseOrder(Request $request, $id)
     {
         $request->validate([

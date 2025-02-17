@@ -64,6 +64,8 @@ Route::prefix('purchase-order')->group(function () {
     //Route::middleware('auth:sanctum')->put('confirm-purchase-order', [PurchaseOrderController::class, 'confirmVendorsOnPurchaseOrder']); 
     Route::middleware('auth:sanctum')->post('manage-vendors-for-po', [PurchaseOrderController::class, 'manageVendorsForPurchaseOrder']);
     Route::middleware('auth:sanctum')->post('/verification', [PurchaseOrderController::class, 'purchaseOrderVerification']);
+    Route::middleware('auth:sanctum')->post('/reply-adjusment-note/{id}', [PurchaseOrderController::class, 'replyAdjustmentNote']);
+    Route::get('/adjusment-notes/{id}', [PurchaseOrderController::class, 'getAdjustmentNotes']);
     Route::middleware('auth:sanctum')->post('/release/{id}', [PurchaseOrderController::class, 'releasePurchaseOrder']);
 
     Route::get('/fetch-vendor-offer-details/{offer_id}', [PurchaseOrderController::class, 'fetchVendorOfferDetails']);
