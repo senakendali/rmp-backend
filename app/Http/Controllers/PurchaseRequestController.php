@@ -274,14 +274,14 @@ class PurchaseRequestController extends Controller
                 'buyer' => $validated['buyer'],
                 'purchase_reason' => $validated['purchase_reason'] ?? null, // New field
                 'purchase_reason_detail' => $validated['purchase_reason_detail'] ?? null, // New field
-                'followed_by' => 'System',
+                'followed_by' => Auth::user()->name,
             ]);
 
             ProcurementLog::create([
                 'purchase_request_id' => $purchaseRequest->id,
                 'log_name' => 'Follow Up Purchase Request',
                 'log_description' => 'Permintaan Di Follow Up',
-                //'user_id' => Auth::user()->id,
+                'user_id' => Auth::user()->id,
             ]);
 
             // Commit the transaction
@@ -355,7 +355,7 @@ class PurchaseRequestController extends Controller
                 'purchase_request_id' => $purchaseRequest->id,
                 'log_name' => $validated['status'].' Purchase Request',
                 'log_description' => $log_description,
-                //'user_id' => Auth::user()->id,
+                'user_id' => Auth::user()->id,
             ]);
 
             DB::commit();
