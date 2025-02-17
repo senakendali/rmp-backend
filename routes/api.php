@@ -67,6 +67,7 @@ Route::prefix('purchase-order')->group(function () {
     Route::middleware('auth:sanctum')->post('/reply-adjusment-note/{id}', [PurchaseOrderController::class, 'replyAdjustmentNote']);
     Route::get('/adjusment-notes/{id}', [PurchaseOrderController::class, 'getAdjustmentNotes']);
     Route::middleware('auth:sanctum')->post('/release/{id}', [PurchaseOrderController::class, 'releasePurchaseOrder']);
+    Route::middleware('auth:sanctum')->post('/confirm-payment/{id}', [PurchaseOrderController::class, 'confirmPayment']);
 
     Route::get('/fetch-vendor-offer-details/{offer_id}', [PurchaseOrderController::class, 'fetchVendorOfferDetails']);
     Route::middleware('auth:sanctum')->post('submit-vendor-offers', [PurchaseOrderController::class, 'submitVendorOffers']); 

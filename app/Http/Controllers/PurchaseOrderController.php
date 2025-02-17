@@ -908,6 +908,7 @@ class PurchaseOrderController extends Controller
                         'down_payment_amount' => $payment->down_payment_amount,
                         'payment_records' => $payment->paymentRecords->map(function ($record) {
                             return [
+                                'payment_id' => $record->id,
                                 'amount_paid' => $record->amount_paid,
                                 'remarks' => $record->remarks,
                             ];
@@ -1067,6 +1068,66 @@ class PurchaseOrderController extends Controller
             'message' => 'Purchase Order released successfully',
             'data' => $purchaseOrder
         ]);
+    }
+
+    public function confirmPayment(Request $request, $id)
+    {
+        $request->validate([
+            'payment_struk' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'delivery_order_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'sales_order_document' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        ]);
+
+        $directory = 'purchase_order/payment';
+
+        // Ensure directory exists
+        if (!Storage::exists($directory)) {
+            Storage::makeDirectory($directory, 0775, true);
+        }
+
+        DB::beginTransaction(); // Start transaction
+
+        try {
+            $paymentRecord = PurchaseOrderPaymentRecord::findOrFail($id);
+
+            // Check if the files exist and delete old ones before saving new ones
+            if ($request->hasFile('payment_struk')) {
+                if ($paymentRecord->payment_struk) {
+                    Storage::delete($paymentRecord->payment_struk);
+                }
+                $paymentRecord->payment_struk = $request->file('payment_struk')->store($directory);
+            }
+
+            if ($request->hasFile('delivery_order_document')) {
+                if ($paymentRecord->delivery_order_document) {
+                    Storage::delete($paymentRecord->delivery_order_document);
+                }
+                $paymentRecord->delivery_order_document = $request->file('delivery_order_document')->store($directory);
+            }
+
+            if ($request->hasFile('sales_order_document')) {
+                if ($paymentRecord->sales_order_document) {
+                    Storage::delete($paymentRecord->sales_order_document);
+                }
+                $paymentRecord->sales_order_document = $request->file('sales_order_document')->store($directory);
+            }
+
+            $paymentRecord->save();
+            DB::commit(); // Commit transaction
+
+            return response()->json([
+                'message' => 'Payment record updated successfully!',
+                'data' => $paymentRecord
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack(); // Rollback changes if error occurs
+            Log::error('Confirm Payment Error: ' . $e->getMessage()); // Log error for debugging
+
+            return response()->json([
+                'message' => 'An error occurred while updating the payment record.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
