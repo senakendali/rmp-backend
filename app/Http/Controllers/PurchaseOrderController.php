@@ -563,6 +563,7 @@ class PurchaseOrderController extends Controller
             'po_date' => $purchaseOrder->created_at,
             'po_number' => $purchaseOrder->purchase_order_number,
             'po_type' => $purchaseOrder->po_type,
+            'po_status' => $purchaseOrder->po_status,
             'goods_category_id' => $purchaseOrder->goods_category_id,
             'category_name' => $purchaseOrder->category->name ?? null, // Safely access category name
             'po_name' => $purchaseOrder->po_name,
