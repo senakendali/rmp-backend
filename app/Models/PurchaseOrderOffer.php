@@ -12,7 +12,7 @@ class PurchaseOrderOffer extends Model
 
     public function purchaseOrder()
     {
-        return $this->belongsTo(PurchaseOrder::class);
+        return $this->belongsTo(PurchaseOrder::class, 'purchase_order_id');
     }
 
     public function vendor()

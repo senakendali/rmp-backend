@@ -1130,6 +1130,39 @@ class PurchaseOrderController extends Controller
         }
     }
 
+    public function getPaymentList(Request $request)
+    {
+        // Define the number of records per page
+        $perPage = $request->input('per_page', 10);
+
+        // Retrieve paginated list of payments with related data
+        $payments = PurchaseOrderPayment::with([
+            'purchaseOrderOffer.purchaseOrder',
+            'purchaseOrderOffer.vendor',
+            'paymentRecords',
+        ])
+        ->paginate($perPage);
+
+        // Transform the paginated data
+        $transformedPayments = $payments->through(function ($payment) {
+            return [
+                'payment_id' => $payment->id,
+                'po_id' => $payment->purchaseOrderOffer->purchaseOrder->id ?? null,
+                'po_name' => $payment->purchaseOrderOffer->purchaseOrder->po_name ?? null,
+                'po_type' => $payment->purchaseOrderOffer->purchaseOrder->po_type ?? null,
+                'vendor_name' => $payment->purchaseOrderOffer->vendor->name ?? null,
+                'amount' => $payment->amount,
+                'category' => $payment->purchaseOrderOffer->purchaseOrder->category->name ?? null,
+                'payment_method' => ($payment->payment_method == 'pay_in_full') ? 'Bayar Lunas' : 'Bayar Sebagian',
+                'payment_date' => $payment->created_at->format('d F Y'),
+                'status' => $payment->status ?? 'Belum Lunas',
+            ];
+        });
+
+        // Return the paginated and transformed data as a JSON response
+        return response()->json($transformedPayments);
+    }
+
     /**
      * Update the specified resource in storage.
      */
