@@ -12,6 +12,6 @@ class PurchaseOrderPaymentRecord extends Model
 
     public function purchaseOrderPayment()
     {
-        return $this->belongsTo(PurchaseOrderPayment::class, 'purchase_order_payment_id');
+        return $this->belongsTo(PurchaseOrderPayment::class, 'purchase_order_payment_id', 'id');
     }
 }

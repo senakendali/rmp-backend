@@ -1132,44 +1132,37 @@ class PurchaseOrderController extends Controller
     }
 
     public function getPaymentList(Request $request)
-{
-    // Define the number of records per page
-    $perPage = $request->input('per_page', 10);
+    {
+        // Define the number of records per page
+        $perPage = $request->input('per_page', 10);
 
-    // Retrieve paginated list of payments with related data
-    $payments = PurchaseOrderPayment::with([
-        'purchaseOrderOffer.purchaseOrder',
-        'purchaseOrderOffer.vendor',
-        'paymentRecords',
-    ])
-    ->paginate($perPage);
+        // Retrieve paginated list of payments with related data
+        $payments = PurchaseOrderPayment::with([
+            'purchaseOrderOffer.purchaseOrder',
+            'purchaseOrderOffer.vendor',
+            'paymentRecords',
+        ])
+        ->paginate($perPage);
 
-    // Transform the paginated data
-    $transformedPayments = $payments->getCollection()->map(function ($payment) {
-        return [
-            'payment_id' => $payment->id,
-            'payment_record_id' => $payment->paymentRecords->first()->id ?? null, // Adjusted for handling the first payment record
-            'po_id' => $payment->purchaseOrderOffer->purchaseOrder->id ?? null,
-            'po_name' => $payment->purchaseOrderOffer->purchaseOrder->po_name ?? null,
-            'po_type' => $payment->purchaseOrderOffer->purchaseOrder->po_type ?? null,
-            'vendor_name' => $payment->purchaseOrderOffer->vendor->name ?? null,
-            'amount' => $payment->amount,
-            'category' => $payment->purchaseOrderOffer->purchaseOrder->category->name ?? null,
-            'payment_method' => ($payment->payment_method == 'pay_in_full') ? 'Bayar Lunas' : 'Bayar Sebagian',
-            'payment_date' => $payment->created_at->format('d F Y'),
-            'status' => $payment->status ?? 'Belum Lunas',
-        ];
-    });
+        // Transform the paginated data
+        $transformedPayments = $payments->through(function ($payment) {
+            return [
+                'payment_id' => $payment->id,
+                'po_id' => $payment->purchaseOrderOffer->purchaseOrder->id ?? null,
+                'po_name' => $payment->purchaseOrderOffer->purchaseOrder->po_name ?? null,
+                'po_type' => $payment->purchaseOrderOffer->purchaseOrder->po_type ?? null,
+                'vendor_name' => $payment->purchaseOrderOffer->vendor->name ?? null,
+                'amount' => $payment->amount,
+                'category' => $payment->purchaseOrderOffer->purchaseOrder->category->name ?? null,
+                'payment_method' => ($payment->payment_method == 'pay_in_full') ? 'Bayar Lunas' : 'Bayar Sebagian',
+                'payment_date' => $payment->created_at->format('d F Y'),
+                'status' => $payment->status ?? 'Belum Lunas',
+            ];
+        });
 
-    // Return the paginated and transformed data as a JSON response
-    return response()->json([
-        'data' => $transformedPayments,
-        'current_page' => $payments->currentPage(),
-        'total' => $payments->total(),
-        'per_page' => $payments->perPage(),
-    ]);
-}
-
+        // Return the paginated and transformed data as a JSON response
+        return response()->json($transformedPayments);
+    }
 
     /**
      * Update the specified resource in storage.

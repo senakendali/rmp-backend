@@ -18,7 +18,7 @@ class PurchaseOrderPayment extends Model
 
     public function paymentRecords()
     {
-        return $this->hasMany(PurchaseOrderPaymentRecord::class, 'purchase_order_payment_id');
+        return $this->hasMany(PurchaseOrderPaymentRecord::class, 'purchase_order_payment_id', 'id');
     }
 
 }
