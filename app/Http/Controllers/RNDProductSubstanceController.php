@@ -50,7 +50,7 @@ class RndProductSubstanceController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'rnd_product_details_id' => 'required|exists:rnd_product_details,id',
+            'rnd_request_id' => 'required|exists:rnd_requests,id',
             'active_substance' => 'required|string',
             'strength' => 'required|string',
             'dose' => 'required|string',
@@ -75,7 +75,7 @@ class RndProductSubstanceController extends Controller
     public function update(Request $request, $id): JsonResponse
     {
         $request->validate([
-            'rnd_product_details_id' => 'sometimes|exists:rnd_product_details,id',
+            'rnd_request_id' => 'required|exists:rnd_requests,id',
             'active_substance' => 'sometimes|string',
             'strength' => 'sometimes|string',
             'dose' => 'sometimes|string',
