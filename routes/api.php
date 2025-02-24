@@ -12,6 +12,11 @@ use App\Http\Controllers\MenuManagementController;
 use App\Http\Controllers\MeasurementUnitController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\ProcurementLogController;
+use App\Http\Controllers\RNDRequestController;
+use App\Http\Controllers\RNDProductCompetitorController;
+use App\Http\Controllers\RNDProductDetailController;
+use App\Http\Controllers\RndProductSubstanceController;
+use App\Http\Controllers\RndReferenceDocumentController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -113,6 +118,38 @@ Route::middleware('auth:sanctum')->group(function () {
 
 //Measurement Unit
 Route::apiResource('procurement-logs', ProcurementLogController::class);
+
+//RND
+Route::prefix('rnd-requests')->group(function () {
+    // Route untuk index (tanpa auth)
+    Route::get('', [RNDRequestController::class, 'index']);
+    
+    // Route untuk show (tanpa auth)
+    Route::get('{id}', [RNDRequestController::class, 'show']);
+
+    // Route untuk store, update, dan delete (dengan auth:sanctum)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('', [RNDRequestController::class, 'store']);
+        Route::put('{id}', [RNDRequestController::class, 'update']);
+        Route::delete('{id}', [RNDRequestController::class, 'destroy']);
+    });
+});
+
+//RND Product Competitor
+Route::apiResource('rnd-product-competitors', RNDProductCompetitorController::class);
+
+//RND Product Detail
+Route::apiResource('rnd-product-details', RNDProductDetailController::class);
+
+//RND Product Substance
+Route::apiResource('rnd-product-substances', RndProductSubstanceController::class);
+
+//RND Reference Document
+Route::get('/rnd-reference-documents/{rnd_request_id}', [RndReferenceDocumentController::class, 'index']);
+Route::post('/rnd-reference-documents', [RndReferenceDocumentController::class, 'store']);
+
+
+
 
 
 
