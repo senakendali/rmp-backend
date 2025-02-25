@@ -17,6 +17,7 @@ use App\Http\Controllers\RNDProductCompetitorController;
 use App\Http\Controllers\RNDProductDetailController;
 use App\Http\Controllers\RndProductSubstanceController;
 use App\Http\Controllers\RndReferenceDocumentController;
+use App\Http\Controllers\RNDProcessController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -147,6 +148,9 @@ Route::apiResource('rnd-product-substances', RndProductSubstanceController::clas
 //RND Reference Document
 Route::get('/rnd-reference-documents/{rnd_request_id}', [RndReferenceDocumentController::class, 'index']);
 Route::post('/rnd-reference-documents', [RndReferenceDocumentController::class, 'store']);
+
+//RND Process
+Route::get('/rnd-process', [RNDProcessController::class, 'index']);
 
 
 
