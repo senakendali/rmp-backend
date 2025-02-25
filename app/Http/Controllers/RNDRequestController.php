@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\RNDRequest;
+use App\Models\RndRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -11,7 +11,7 @@ class RNDRequestController extends Controller
 {
     public function index()
     {
-        $requests = RNDRequest::paginate(10);
+        $requests = RndRequest::paginate(10);
         return response()->json($requests);
     }
 
@@ -28,8 +28,8 @@ class RNDRequestController extends Controller
             ]);
 
             $validated['requested_by'] = Auth::id();
-            $rndRequest = RNDRequest::create($validated);
-            return response()->json($rndRequest, Response::HTTP_CREATED);
+            $RndRequest = RndRequest::create($validated);
+            return response()->json($RndRequest, Response::HTTP_CREATED);
         } catch (\Throwable $e) {
             return response()->json(['error' => 'Failed to store data', 'message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -38,8 +38,8 @@ class RNDRequestController extends Controller
     public function show($id)
     {
         try {
-            $rndRequest = RNDRequest::findOrFail($id);
-            return response()->json($rndRequest);
+            $RndRequest = RndRequest::findOrFail($id);
+            return response()->json($RndRequest);
         } catch (\Throwable $e) {
             return response()->json(['error' => 'Failed to fetch data', 'message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
@@ -48,7 +48,7 @@ class RNDRequestController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $rndRequest = RNDRequest::findOrFail($id);
+            $RndRequest = RndRequest::findOrFail($id);
 
             if ($request->isMethod('patch')) {
                 $validated = $request->validate([
@@ -70,8 +70,8 @@ class RNDRequestController extends Controller
                 ]);
             }
 
-            $rndRequest->update($validated);
-            return response()->json($rndRequest);
+            $RndRequest->update($validated);
+            return response()->json($RndRequest);
         } catch (\Illuminate\Validation\ValidationThrowable $e) {
             return response()->json(['error' => 'Validation failed', 'message' => $e->errors()], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (\Throwable $e) {
@@ -82,9 +82,9 @@ class RNDRequestController extends Controller
     public function destroy($id)
     {
         try {
-            $rndRequest = RNDRequest::findOrFail($id);
+            $RndRequest = RndRequest::findOrFail($id);
           
-            $rndRequest->delete();
+            $RndRequest->delete();
             return response()->json(null, Response::HTTP_NO_CONTENT);
         } catch (\Throwable $e) {
             return response()->json(['error' => 'Failed to delete data', 'message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
