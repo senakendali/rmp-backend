@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\RNDProductCompetitor;
+use App\Models\RndProductCompetitor;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +12,7 @@ class RNDProductCompetitorController extends Controller
     public function index()
     {
         try {
-            $competitors = RNDProductCompetitor::paginate(10);
+            $competitors = RndProductCompetitor::paginate(10);
             return response()->json($competitors);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to fetch data', 'message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -32,7 +32,7 @@ class RNDProductCompetitorController extends Controller
                 'hna_target' => 'required|numeric',
             ]);
 
-            $competitor = RNDProductCompetitor::create($validated);
+            $competitor = RndProductCompetitor::create($validated);
             return response()->json($competitor, Response::HTTP_CREATED);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['error' => 'Validation failed', 'message' => $e->errors()], Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -44,7 +44,7 @@ class RNDProductCompetitorController extends Controller
     public function show($id)
     {
         try {
-            $competitor = RNDProductCompetitor::findOrFail($id);
+            $competitor = RndProductCompetitor::findOrFail($id);
             return response()->json($competitor);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to fetch data', 'message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
@@ -54,7 +54,7 @@ class RNDProductCompetitorController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $competitor = RNDProductCompetitor::findOrFail($id);
+            $competitor = RndProductCompetitor::findOrFail($id);
 
             $validated = $request->validate([
                 'name' => 'sometimes|string',
@@ -75,7 +75,7 @@ class RNDProductCompetitorController extends Controller
     public function destroy($id)
     {
         try {
-            RNDProductCompetitor::findOrFail($id)->delete();
+            RndProductCompetitor::findOrFail($id)->delete();
             return response()->json(null, Response::HTTP_NO_CONTENT);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to delete data', 'message' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
