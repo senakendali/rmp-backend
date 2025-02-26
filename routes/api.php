@@ -143,7 +143,7 @@ Route::apiResource('rnd-product-competitors', RNDProductCompetitorController::cl
 Route::apiResource('rnd-product-details', RNDProductDetailController::class);
 
 //RND Product Substance
-Route::apiResource('rnd-product-substances', RndProductSubstanceController::class);
+Route::apiResource('rnd-product-substances', RNDProductSubstanceController::class);
 
 //RND Reference Document
 Route::get('/rnd-reference-documents/{rnd_request_id}', [RndReferenceDocumentController::class, 'index']);

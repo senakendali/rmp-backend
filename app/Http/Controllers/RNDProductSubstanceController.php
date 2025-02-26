@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Exception;
 
-class RndProductSubstanceController extends Controller
+class RNDProductSubstanceController extends Controller
 {
     // Get all data with pagination
     public function index(Request $request): JsonResponse
