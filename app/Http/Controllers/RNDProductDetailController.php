@@ -13,24 +13,15 @@ class RndProductDetailController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request): JsonResponse
+    public function index(Request $request, $rnd_request_id): JsonResponse
     {
         try {
-            $query = RndProductDetail::query();
-
-            // Cek apakah ada filter rnd_request_id
-            if ($request->has('rnd_request_id')) {
-                $query->where('rnd_request_id', $request->rnd_request_id);
-            }
-
-            $products = $query->paginate(10); // Menampilkan 10 data per halaman
-
-            return response()->json($products, 200);
+            $product = RndProductDetail::where('rnd_request_id', $rnd_request_id)->first();
+            return response()->json($product, 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Product not found'], 404);
         } catch (Exception $e) {
-            return response()->json([
-                'error' => 'Failed to fetch data',
-                'message' => $e->getMessage()
-            ], 500);
+            return response()->json(['error' => 'Failed to fetch product', 'message' => $e->getMessage()], 500);
         }
     }
 

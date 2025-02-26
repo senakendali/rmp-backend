@@ -140,7 +140,7 @@ Route::prefix('rnd-requests')->group(function () {
 Route::apiResource('rnd-product-competitors', RNDProductCompetitorController::class);
 
 //RND Product Detail
-Route::apiResource('rnd-product-details', RNDProductDetailController::class);
+Route::apiResource('rnd-product-details/{rnd_request_id}', RNDProductDetailController::class);
 
 //RND Product Substance
 Route::apiResource('rnd-product-substances', RNDProductSubstanceController::class);
