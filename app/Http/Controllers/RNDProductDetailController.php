@@ -13,10 +13,18 @@ class RndProductDetailController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
         try {
-            $products = RndProductDetail::paginate(10); // Menampilkan 10 data per halaman
+            $query = RndProductDetail::query();
+
+            // Cek apakah ada filter rnd_request_id
+            if ($request->has('rnd_request_id')) {
+                $query->where('rnd_request_id', $request->rnd_request_id);
+            }
+
+            $products = $query->paginate(10); // Menampilkan 10 data per halaman
+
             return response()->json($products, 200);
         } catch (Exception $e) {
             return response()->json([
@@ -25,6 +33,7 @@ class RndProductDetailController extends Controller
             ], 500);
         }
     }
+
     
     /**
      * Store a newly created resource in storage.

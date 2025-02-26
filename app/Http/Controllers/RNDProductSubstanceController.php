@@ -13,11 +13,11 @@ class RndProductSubstanceController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            // Ambil query parameter rnd_product_details_id jika ada
+            // Ambil query parameter rnd_request_id jika ada
             $query = RndProductSubstance::query();
 
-            if ($request->has('rnd_product_details_id')) {
-                $query->where('rnd_product_details_id', $request->rnd_product_details_id);
+            if ($request->has('rnd_request_id')) {
+                $query->where('rnd_request_id', $request->rnd_request_id);
             }
 
             $substances = $query->paginate(10);
