@@ -15,7 +15,7 @@ use App\Http\Controllers\ProcurementLogController;
 use App\Http\Controllers\RNDRequestController;
 use App\Http\Controllers\RNDProductCompetitorController;
 use App\Http\Controllers\RNDProductDetailController;
-use App\Http\Controllers\RndProductSubstanceController;
+use App\Http\Controllers\RNDProductSubstanceController;
 use App\Http\Controllers\RndReferenceDocumentController;
 use App\Http\Controllers\RNDProcessController;
 
