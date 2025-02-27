@@ -136,6 +136,8 @@ Route::prefix('rnd-requests')->group(function () {
     });
 });
 
+//RND Product Detail
+Route::apiResource('rnd-product-details', RNDProductDetailController::class);
 
 //RND Product Substance
 Route::apiResource('rnd-product-substances', RndProductSubstanceController::class);
@@ -150,8 +152,7 @@ Route::post('/rnd-reference-documents', [RndReferenceDocumentController::class, 
 //RND Product Competitor
 Route::apiResource('rnd-product-competitors', RNDProductCompetitorController::class);
 
-//RND Product Detail
-Route::apiResource('rnd-product-details/{rnd_request_id}', RNDProductDetailController::class);
+
 
 
 
