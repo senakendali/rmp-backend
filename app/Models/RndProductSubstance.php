@@ -10,8 +10,8 @@ class RndProductSubstance extends Model
     protected $dates = ['created_at', 'updated_at'];
     protected $table = 'rnd_product_substances';
 
-    public function rndProductDetail()
+    public function rndRequest()
     {
-        return $this->belongsTo(RndProductDetail::class, 'rnd_product_details_id');
+        return $this->belongsTo(RndRequest::class, 'rnd_request_id');
     }
 }

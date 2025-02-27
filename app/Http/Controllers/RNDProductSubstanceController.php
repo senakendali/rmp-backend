@@ -4,111 +4,66 @@ namespace App\Http\Controllers;
 
 use App\Models\RndProductSubstance;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use Exception;
+use Illuminate\Http\Response;
 
-class RNDProductSubstanceController extends Controller
+class RndProductSubstanceController extends Controller
 {
-    // Get all data with pagination
-    public function index(Request $request): JsonResponse
+    public function index()
     {
-        try {
-            // Ambil query parameter rnd_request_id jika ada
-            $query = RndProductSubstance::query();
-
-            if ($request->has('rnd_request_id')) {
-                $query->where('rnd_request_id', $request->rnd_request_id);
-            }
-
-            $substances = $query->paginate(10);
-
-            return response()->json($substances, 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'error' => 'Failed to fetch data',
-                'message' => $e->getMessage()
-            ], 500);
-        }
+        $substances = RndProductSubstance::all();  // Ensure the correct model casing
+        return response()->json($substances);
     }
 
-
-    // Get single data
-    public function show($id): JsonResponse
-    {
-        try {
-            $substance = RndProductSubstance::findOrFail($id);
-            return response()->json($substance, 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'error' => 'Data not found',
-                'message' => $e->getMessage()
-            ], 404);
-        }
-    }
-
-    // Store new data
-    public function store(Request $request): JsonResponse
+    // Store a newly created resource in storage
+    public function store(Request $request)
     {
         $request->validate([
-            'rnd_request_id' => 'required|exists:rnd_requests,id',
+            'rnd_request_id' => 'required|exists:rnd_requests,id',  // Fixed the typo
             'active_substance' => 'required|string',
             'strength' => 'required|string',
             'dose' => 'required|string',
             'form' => 'required|string',
             'packaging' => 'required|string',
             'brand' => 'required|string',
-            'hna_target' => 'required|numeric',
+            'hna_target' => 'required|numeric'
         ]);
 
-        try {
-            $substance = RndProductSubstance::create($request->all());
-            return response()->json($substance, 201);
-        } catch (Exception $e) {
-            return response()->json([
-                'error' => 'Failed to create data',
-                'message' => $e->getMessage()
-            ], 500);
-        }
+        $substance = RndProductSubstance::create($request->all());  // Fixed the typo
+
+        // Return the created substance as JSON with a 201 status code
+        return response()->json($substance, 201);
     }
 
-    // Update data
-    public function update(Request $request, $id): JsonResponse
+    // Display the specified resource
+    public function show(RndProductSubstance $rndProductSubstance)
+    {
+        return response()->json($rndProductSubstance);
+    }
+
+    // Update the specified resource in storage
+    public function update(Request $request, RndProductSubstance $rndProductSubstance)
     {
         $request->validate([
-            'rnd_request_id' => 'required|exists:rnd_requests,id',
-            'active_substance' => 'sometimes|string',
-            'strength' => 'sometimes|string',
-            'dose' => 'sometimes|string',
-            'form' => 'sometimes|string',
-            'packaging' => 'sometimes|string',
-            'brand' => 'sometimes|string',
-            'hna_target' => 'sometimes|numeric',
+            'rnd_request_id' => 'exists:rnd_requests,id',  // Fixed the typo
+            'active_substance' => 'string',
+            'strength' => 'string',
+            'dose' => 'string',
+            'form' => 'string',
+            'packaging' => 'string',
+            'brand' => 'string',
+            'hna_target' => 'numeric'
         ]);
 
-        try {
-            $substance = RndProductSubstance::findOrFail($id);
-            $substance->update($request->all());
-            return response()->json($substance, 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'error' => 'Failed to update data',
-                'message' => $e->getMessage()
-            ], 500);
-        }
+        $rndProductSubstance->update($request->all());
+
+        return response()->json($rndProductSubstance);
     }
 
-    // Delete data
-    public function destroy($id): JsonResponse
+    // Remove the specified resource from storage
+    public function destroy(RndProductSubstance $rndProductSubstance)
     {
-        try {
-            $substance = RndProductSubstance::findOrFail($id);
-            $substance->delete();
-            return response()->json(['message' => 'Data deleted successfully'], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'error' => 'Failed to delete data',
-                'message' => $e->getMessage()
-            ], 500);
-        }
+        $rndProductSubstance->delete();
+
+        return response()->json(null, 204);  // Return empty response with 204 status code
     }
 }

@@ -29,4 +29,9 @@ class RndRequest extends Model
     {
         return $this->hasMany(RndReferenceDocument::class);
     }
+
+    public function rndProductSubstances()
+    {
+        return $this->hasMany(RndProductSubstance::class, 'rnd_request_id');
+    }
 }

@@ -15,7 +15,7 @@ use App\Http\Controllers\ProcurementLogController;
 use App\Http\Controllers\RNDRequestController;
 use App\Http\Controllers\RNDProductCompetitorController;
 use App\Http\Controllers\RNDProductDetailController;
-use App\Http\Controllers\RNDProductSubstanceController;
+use App\Http\Controllers\RndProductSubstanceController;
 use App\Http\Controllers\RndReferenceDocumentController;
 use App\Http\Controllers\RNDProcessController;
 
@@ -136,21 +136,33 @@ Route::prefix('rnd-requests')->group(function () {
     });
 });
 
+
+//RND Product Substance
+Route::apiResource('rnd-product-substances', RndProductSubstanceController::class);
+
+//RND Process
+Route::get('/rnd-process', [RNDProcessController::class, 'index']);
+
+//RND Reference Document
+Route::get('/rnd-reference-documents/{rnd_request_id}', [RndReferenceDocumentController::class, 'index']);
+Route::post('/rnd-reference-documents', [RndReferenceDocumentController::class, 'store']);
+
 //RND Product Competitor
 Route::apiResource('rnd-product-competitors', RNDProductCompetitorController::class);
 
 //RND Product Detail
 Route::apiResource('rnd-product-details/{rnd_request_id}', RNDProductDetailController::class);
 
-//RND Product Substance
-Route::apiResource('rnd-product-substances', RNDProductSubstanceController::class);
 
-//RND Reference Document
-Route::get('/rnd-reference-documents/{rnd_request_id}', [RndReferenceDocumentController::class, 'index']);
-Route::post('/rnd-reference-documents', [RndReferenceDocumentController::class, 'store']);
 
-//RND Process
-Route::get('/rnd-process', [RNDProcessController::class, 'index']);
+
+
+
+
+
+Route::get('/test', function () {
+    return response()->json(['message' => 'It works']);
+});
 
 
 
