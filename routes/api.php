@@ -15,7 +15,7 @@ use App\Http\Controllers\ProcurementLogController;
 use App\Http\Controllers\RNDRequestController;
 use App\Http\Controllers\RNDProductCompetitorController;
 use App\Http\Controllers\RNDProductDetailController;
-use App\Http\Controllers\RndProductSubstanceController;
+use App\Http\Controllers\RNDProductSubstanceController;
 use App\Http\Controllers\RNDReferenceDocumentController;
 use App\Http\Controllers\RNDProcessController;
 
@@ -140,7 +140,7 @@ Route::prefix('rnd-requests')->group(function () {
 Route::apiResource('rnd-product-details', RNDProductDetailController::class);
 
 //RND Product Substance
-Route::apiResource('rnd-product-substances', RndProductSubstanceController::class);
+Route::apiResource('rnd-product-substances', RNDProductSubstanceController::class);
 
 //RND Process
 Route::get('/rnd-process', [RNDProcessController::class, 'index']);

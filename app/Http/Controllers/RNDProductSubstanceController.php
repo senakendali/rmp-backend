@@ -6,7 +6,7 @@ use App\Models\RndProductSubstance;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-class RndProductSubstanceController extends Controller
+class RNDProductSubstanceController extends Controller
 {
     public function index()
     {
