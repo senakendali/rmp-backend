@@ -18,6 +18,7 @@ use App\Http\Controllers\RNDProductDetailController;
 use App\Http\Controllers\RNDProductSubstanceController;
 use App\Http\Controllers\RNDReferenceDocumentController;
 use App\Http\Controllers\RNDProcessController;
+use App\Http\Controllers\RndProcessConfirmationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -152,18 +153,8 @@ Route::post('/rnd-reference-documents', [RNDReferenceDocumentController::class, 
 //RND Product Competitor
 Route::apiResource('rnd-product-competitors', RNDProductCompetitorController::class);
 
-
-
-
-
-
-
-
-
-
-Route::get('/test', function () {
-    return response()->json(['message' => 'It works']);
-});
+//RND Process Confirmation
+Route::apiResource('rnd-process-confirmations', RndProcessConfirmationController::class);
 
 
 
