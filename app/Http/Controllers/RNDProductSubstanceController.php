@@ -8,12 +8,17 @@ use Illuminate\Http\Response;
 
 class RNDProductSubstanceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        
-
         try {
-            $substances = RndProductSubstance::all();  // Ensure the correct model casing
+            $query = RndProductSubstance::query();
+
+            if ($request->has('rnd_request_id')) {
+                $query->where('rnd_request_id', $request->rnd_request_id);
+            }
+
+            $substances = $query->get();
+
             return response()->json($substances);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
