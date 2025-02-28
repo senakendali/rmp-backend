@@ -10,8 +10,14 @@ class RndProductSubstanceController extends Controller
 {
     public function index()
     {
-        $substances = RndProductSubstance::all();  // Ensure the correct model casing
-        return response()->json($substances);
+        
+
+        try {
+            $substances = RndProductSubstance::all();  // Ensure the correct model casing
+            return response()->json($substances);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     // Store a newly created resource in storage
