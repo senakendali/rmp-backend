@@ -9,7 +9,7 @@ use App\Models\RndReferenceDocument;
 use App\Models\RndRequest;
 use Exception;
 
-class RndReferenceDocumentController extends Controller
+class RNDReferenceDocumentController extends Controller
 {
     /**
      * Menampilkan list berdasarkan rnd_request_id
