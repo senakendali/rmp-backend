@@ -19,6 +19,7 @@ use App\Http\Controllers\RNDProductSubstanceController;
 use App\Http\Controllers\RNDReferenceDocumentController;
 use App\Http\Controllers\RNDProcessController;
 use App\Http\Controllers\RndProcessConfirmationController;
+use App\Http\Controllers\RndProcessDocumentationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -155,6 +156,9 @@ Route::apiResource('rnd-product-competitors', RNDProductCompetitorController::cl
 
 //RND Process Confirmation
 Route::apiResource('rnd-process-confirmations', RndProcessConfirmationController::class);
+
+//RND Process Documentation
+Route::apiResource('rnd-process-documentations', RndProcessDocumentationController::class);
 
 
 

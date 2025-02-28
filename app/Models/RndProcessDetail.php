@@ -19,4 +19,9 @@ class RndProcessDetail extends Model
     {
         return $this->hasMany(RndProcessConfirmation::class, 'rnd_process_detail_id');
     }
+
+    public function rndProcessDocumentations()
+    {
+        return $this->hasMany(RndProcessDocumentation::class, 'rnd_process_detail_id');
+    }
 }

@@ -34,4 +34,19 @@ class RndRequest extends Model
     {
         return $this->hasMany(RndProductSubstance::class, 'rnd_request_id');
     }
+
+    public function rndProcessDetails()
+    {
+        return $this->hasMany(RndProcessDetail::class);
+    }
+
+    public function rndProcessConfirmations()
+    {
+        return $this->hasMany(RndProcessConfirmation::class);
+    }
+
+    public function rndProcessDocumentations()
+    {
+        return $this->hasMany(RndProcessDocumentation::class);
+    }
 }
