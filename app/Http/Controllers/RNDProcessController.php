@@ -18,6 +18,7 @@ class RNDProcessController extends Controller
                 'category' => $process->name,
                 'details' => $process->rndProcessDetails->map(function($detail) {
                     return [
+                        'id' => $detail->id,
                         'name' => $detail->name,
                     ];
                 })
