@@ -20,6 +20,7 @@ use App\Http\Controllers\RNDReferenceDocumentController;
 use App\Http\Controllers\RNDProcessController;
 use App\Http\Controllers\RndProcessConfirmationController;
 use App\Http\Controllers\RndProcessDocumentationController;
+use App\Http\Controllers\RndRawMaterialController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -159,6 +160,22 @@ Route::apiResource('rnd-process-confirmations', RndProcessConfirmationController
 
 //RND Process Documentation
 Route::apiResource('rnd-process-documentations', RndProcessDocumentationController::class);
+
+//RND Raw Material
+Route::prefix('rnd-raw-materials')->group(function () {
+    // Route untuk index (tanpa auth)   
+    Route::get('', [RndRawMaterialController::class, 'index']);
+    
+    // Route untuk show (tanpa auth)
+    Route::get('{id}', [RndRawMaterialController::class, 'show']);
+
+    // Route untuk store, update, dan delete (dengan auth:sanctum)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('', [RndRawMaterialController::class, 'store']);
+        Route::put('{id}', [RndRawMaterialController::class, 'update']);
+        Route::delete('{id}', [RndRawMaterialController::class, 'destroy']);
+    });
+});
 
 
 
