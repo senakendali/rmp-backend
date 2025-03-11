@@ -21,6 +21,7 @@ use App\Http\Controllers\RNDProcessController;
 use App\Http\Controllers\RndProcessConfirmationController;
 use App\Http\Controllers\RndProcessDocumentationController;
 use App\Http\Controllers\RndRawMaterialController;
+use App\Http\Controllers\RndTrialPackagingMaterialController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -176,6 +177,24 @@ Route::prefix('rnd-raw-materials')->group(function () {
         Route::delete('{id}', [RndRawMaterialController::class, 'destroy']);
     });
 });
+
+// RND Trial Packaging Material
+Route::prefix('rnd-trial-packaging-materials')->group(function () {
+    // Route untuk index (tanpa auth)   
+    Route::get('', [RndTrialPackagingMaterialController::class, 'index']);
+    
+    // Route untuk show (tanpa auth)
+    Route::get('{id}', [RndTrialPackagingMaterialController::class, 'show']);
+
+    // Route untuk store, update, dan delete (dengan auth:sanctum)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('', [RndTrialPackagingMaterialController::class, 'store']);
+        Route::put('{id}', [RndTrialPackagingMaterialController::class, 'update']);
+        Route::delete('{id}', [RndTrialPackagingMaterialController::class, 'destroy']);
+    });
+});
+
+
 
 
 

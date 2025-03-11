@@ -49,4 +49,9 @@ class RndRequest extends Model
     {
         return $this->hasMany(RndProcessDocumentation::class);
     }
+
+    public function rndTrialPackagingMaterials()
+    {
+        return $this->hasMany(RndTrialPackagingMaterial::class);
+    }
 }

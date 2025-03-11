@@ -15,5 +15,10 @@ class Goods extends Model
         return $this->belongsTo(GoodsCategories::class, 'goods_category_id');
     }
 
+    public function rndTrialPackagingMaterialDetails()
+    {
+        return $this->hasMany(RndTrialPackagingMaterialDetail::class);
+    }
+
     
 }
