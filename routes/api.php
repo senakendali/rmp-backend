@@ -22,6 +22,7 @@ use App\Http\Controllers\RndProcessConfirmationController;
 use App\Http\Controllers\RndProcessDocumentationController;
 use App\Http\Controllers\RndRawMaterialController;
 use App\Http\Controllers\RndTrialPackagingMaterialController;
+use App\Http\Controllers\RndTrialFormulationController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -191,6 +192,22 @@ Route::prefix('rnd-trial-packaging-materials')->group(function () {
         Route::post('', [RndTrialPackagingMaterialController::class, 'store']);
         Route::put('{id}', [RndTrialPackagingMaterialController::class, 'update']);
         Route::delete('{id}', [RndTrialPackagingMaterialController::class, 'destroy']);
+    });
+});
+
+// RND Trial Formulation
+Route::prefix('rnd-trial-formulations')->group(function () {
+    // Route untuk index (tanpa auth)   
+    Route::get('', [RndTrialFormulationController::class, 'index']);
+    
+    // Route untuk show (tanpa auth)
+    Route::get('{id}', [RndTrialFormulationController::class, 'show']);
+
+    // Route untuk store, update, dan delete (dengan auth:sanctum)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('', [RndTrialFormulationController::class, 'store']);
+        Route::put('{id}', [RndTrialFormulationController::class, 'update']);
+        Route::delete('{id}', [RndTrialFormulationController::class, 'destroy']);
     });
 });
 
