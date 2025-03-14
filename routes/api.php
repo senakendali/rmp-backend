@@ -23,6 +23,7 @@ use App\Http\Controllers\RndProcessDocumentationController;
 use App\Http\Controllers\RndRawMaterialController;
 use App\Http\Controllers\RndTrialPackagingMaterialController;
 use App\Http\Controllers\RndTrialFormulationController;
+use App\Http\Controllers\RawMaterialController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -210,6 +211,9 @@ Route::prefix('rnd-trial-formulations')->group(function () {
         Route::delete('{id}', [RndTrialFormulationController::class, 'destroy']);
     });
 });
+
+// Raw Material
+Route::get('/raw-materials', [RawMaterialController::class, 'index']);
 
 
 
