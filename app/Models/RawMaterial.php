@@ -14,4 +14,9 @@ class RawMaterial extends Model
     {
         return $this->hasMany(RawMaterialDetail::class);
     }
+
+    public function trialFormulaReports()
+    {
+        return $this->hasMany(TrialFormulaReport::class);
+    }
 }

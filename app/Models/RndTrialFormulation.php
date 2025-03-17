@@ -19,4 +19,29 @@ class RndTrialFormulation extends Model
     {
         return $this->hasMany(RndTrialFormulationDetail::class);
     }
+
+    public function reports()
+    {
+        return $this->hasMany(TrialFormulaReport::class);
+    }
+
+    public function procedures()
+    {
+        return $this->hasMany(TrialFormulaProcedure::class);
+    }
+
+    public function specifications()
+    {
+        return $this->hasMany(TrialFormulaSpecification::class);
+    }
+
+    public function conclusion()
+    {
+        return $this->hasOne(TrialFormulaConclusion::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(TrialFormulaDocument::class);
+    }
 }
