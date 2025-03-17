@@ -55,7 +55,12 @@ class RndTrialFormulationController extends Controller
 
     public function show($id)
     {
-        return response()->json(RndTrialFormulation::with('rndTrialFormulationDetails')->findOrFail($id));
+        return response()->json(
+            RndTrialFormulation::with([
+                'rndTrialFormulationDetails', // Eager load the first relationship
+                'rndTrialFormulationDetails.rawMaterial' // Eager load the nested relationship
+            ])->findOrFail($id)
+        );
     }
 
     public function update(Request $request, $id)
