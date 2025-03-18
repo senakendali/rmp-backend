@@ -44,4 +44,9 @@ class RndTrialFormulation extends Model
     {
         return $this->hasMany(TrialFormulaDocument::class);
     }
+
+    public function trialAnalysisMethod()
+    {
+        return $this->hasOne(TrialAnalysisMethod::class);
+    }
 }

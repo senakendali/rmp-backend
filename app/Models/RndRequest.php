@@ -59,4 +59,9 @@ class RndRequest extends Model
     {
         return $this->hasMany(RndTrialFormulation::class);
     }
+
+    public function trialAnalysisMethod()
+    {
+        return $this->hasOne(TrialAnalysisMethod::class);
+    }
 }

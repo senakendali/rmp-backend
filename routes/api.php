@@ -25,6 +25,7 @@ use App\Http\Controllers\RndTrialPackagingMaterialController;
 use App\Http\Controllers\RndTrialFormulationController;
 use App\Http\Controllers\RawMaterialController;
 use App\Http\Controllers\TrialFormulaController;
+use App\Http\Controllers\TrialAnalysisMethodController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -219,6 +220,9 @@ Route::get('/raw-materials', [RawMaterialController::class, 'index']);
 
 // Trial Formula Report
 Route::apiResource('/trial-formulation-reports', TrialFormulaController::class);
+
+// Trial Analysis Method
+Route::apiResource('/trial-analysis-methods', TrialAnalysisMethodController::class);
 
 
 
