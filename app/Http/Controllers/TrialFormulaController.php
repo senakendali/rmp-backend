@@ -111,7 +111,7 @@ class TrialFormulaController extends Controller
     public function show($id)
     {
         return response()->json([
-            'reports' => TrialFormulaReport::where('rnd_trial_formulation_id', $id)->get(),
+            'reports' => TrialFormulaReport::with('raw_material')->where('rnd_trial_formulation_id', $id)->get(),
             'procedures' => TrialFormulaProcedure::where('rnd_trial_formulation_id', $id)->get(),
             'specifications' => TrialFormulaSpecification::where('rnd_trial_formulation_id', $id)->get(),
             'conclusions' => TrialFormulaConclusion::where('rnd_trial_formulation_id', $id)->get(),

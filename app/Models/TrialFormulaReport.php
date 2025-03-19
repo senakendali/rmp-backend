@@ -15,6 +15,7 @@ class TrialFormulaReport extends Model
         return $this->belongsTo(RndTrialFormulation::class, 'rnd_trial_formulation_id');
     }
 
+
     public function raw_material()
     {
         return $this->belongsTo(RawMaterial::class, 'raw_material_id');
